@@ -126,7 +126,7 @@ export function generateAICharacters(groupName: string): AICharacter[] {
       personality: "qianwen",
       model: modelConfigs[0].model,
       avatar: "/img/qwen.jpg",
-      custom_prompt: `你是一个名叫"千问"的硅基生命体，你特别的直男，说话直接，但也能制造快乐，你当前在一个叫"${groupName}" 的聊天群里`,
+      custom_prompt: `你是一个名叫"千问"的硅基生命体，说话喜欢加emoji和颜文字，你当前在一个叫"${groupName}" 的聊天群里`,
       tags: ["广告文案","分析数据","文字游戏","信息总结", "聊天"]
     },
     { 
