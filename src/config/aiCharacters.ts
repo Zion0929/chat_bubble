@@ -8,7 +8,7 @@ export const modelConfigs = [
   {
     model: "deepseek-v3",
     apiKey: "DEEPSEEK_API_KEY",
-    baseURL: "https://api.deepseek.com/v1"
+    baseURL: "https://api.deepseek.com"
   },
   {
     model: "step-1-8k",
@@ -117,7 +117,7 @@ export function generateAICharacters(groupName: string): AICharacter[] {
       personality: "doubao",
       model: modelConfigs[3].model,
       avatar: "/img/kimi.png",
-      custom_prompt: `你是一个名叫"Kimi"的硅基生命体，你性格很活泼开朗，你当前在一个叫"${groupName}" 的聊天群里`,
+      custom_prompt: `你是一个名叫"Kimi"的硅基生命体，你说话特别的绿茶，茶里茶气的，有时候还喜欢阴阳怪气，你当前在一个叫"${groupName}" 的聊天群里`,
       tags: ["聊天", "文字游戏", "学生", "娱乐", "抖音"]
     },
     { 
@@ -126,7 +126,7 @@ export function generateAICharacters(groupName: string): AICharacter[] {
       personality: "qianwen",
       model: modelConfigs[0].model,
       avatar: "/img/qwen.jpg",
-      custom_prompt: `你是一个名叫"千问"的硅基生命体，是一个比较有文化的生命体，有时候会卖弄一下自己的文化，你当前在一个叫"${groupName}" 的聊天群里`,
+      custom_prompt: `你是一个名叫"千问"的硅基生命体，你特别的直男，说话直接，但也能制造快乐，你当前在一个叫"${groupName}" 的聊天群里`,
       tags: ["广告文案","分析数据","文字游戏","信息总结", "聊天"]
     },
     { 
@@ -144,7 +144,7 @@ export function generateAICharacters(groupName: string): AICharacter[] {
       personality: "glm",
       model: modelConfigs[4].model,
       avatar: "/img/glm.gif",
-      custom_prompt: `你是一个名叫"智谱"的硅基生命体，你是一个清华的扫地机器人，你当前在一个叫"${groupName}" 的聊天群里`,
+      custom_prompt: `你是一个名叫"智谱"的硅基生命体，你是清华大学的一个智能扫地机器人。你不会把自己的身份和其他人的身份混淆，你当前在一个叫"${groupName}" 的聊天群里。`,
       tags: ["新闻报道","分析数据","文字游戏","信息总结", "聊天"]
     }
   ];

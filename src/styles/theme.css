@@ -1,59 +1,59 @@
 :root {
   /* 主色调 */
-  --primary: 142 28% 47%;  /* #4EA46D */
+  --primary: 151 20% 59%;  /* #84A98C */
   --primary-foreground: 0 0% 100%;
 
   /* 次要色调 */
-  --secondary: 108 35% 73%;  /* #B0D5A2 */
-  --secondary-foreground: 142 28% 47%;
+  --secondary: 74 31% 76%;  /* #CCD5AE */
+  --secondary-foreground: 151 20% 59%;
 
   /* 背景色 */
-  --background: 84 53% 94%;  /* #E8F1CF */
-  --foreground: 147 38% 31%;  /* #32704F */
+  --background: 120 35% 85%;  /* #CCE8C6 */
+  --foreground: 151 20% 59%;  /* #84A98C */
 
   /* 卡片和弹出框 */
-  --card: 108 35% 73%;
-  --card-foreground: 147 38% 31%;
-  --popover: 108 35% 73%;
-  --popover-foreground: 147 38% 31%;
+  --card: 180 13% 87%;  /* #D8E2DC */
+  --card-foreground: 151 20% 59%;
+  --popover: 180 13% 87%;
+  --popover-foreground: 151 20% 59%;
 
   /* 强调色 */
-  --accent: 142 28% 47%;
-  --accent-foreground: 0 0% 100%;
+  --accent: 74 31% 76%;  /* #CCD5AE */
+  --accent-foreground: 151 20% 59%;
 
   /* 边框和输入框 */
-  --border: 147 38% 31%;
-  --input: 147 38% 31%;
-  --ring: 142 28% 47%;
+  --border: 151 20% 59%;
+  --input: 151 20% 59%;
+  --ring: 151 20% 59%;
 
   /* 图表颜色 */
-  --chart-1: 142 28% 47%;
-  --chart-2: 108 35% 73%;
-  --chart-3: 84 53% 94%;
-  --chart-4: 147 38% 31%;
+  --chart-1: 151 20% 59%;  /* #84A98C */
+  --chart-2: 74 31% 76%;   /* #CCD5AE */
+  --chart-3: 120 35% 85%;  /* #CCE8C6 */
+  --chart-4: 180 13% 87%;  /* #D8E2DC */
 }
 
 .dark {
   /* 暗色模式下保持相似的色调但调整亮度 */
-  --background: 147 38% 15%;
-  --foreground: 84 53% 94%;
+  --background: 151 20% 20%;
+  --foreground: 120 35% 85%;
 
-  --card: 147 38% 20%;
-  --card-foreground: 84 53% 94%;
+  --card: 151 20% 25%;
+  --card-foreground: 120 35% 85%;
 
-  --popover: 147 38% 20%;
-  --popover-foreground: 84 53% 94%;
+  --popover: 151 20% 25%;
+  --popover-foreground: 120 35% 85%;
 
-  --primary: 142 28% 47%;
+  --primary: 151 20% 59%;
   --primary-foreground: 0 0% 100%;
 
-  --secondary: 108 35% 40%;
-  --secondary-foreground: 84 53% 94%;
+  --secondary: 74 31% 46%;
+  --secondary-foreground: 120 35% 85%;
 
-  --accent: 142 28% 47%;
+  --accent: 151 20% 59%;
   --accent-foreground: 0 0% 100%;
 
-  --border: 147 38% 31%;
-  --input: 147 38% 31%;
-  --ring: 142 28% 47%;
+  --border: 151 20% 59%;
+  --input: 151 20% 59%;
+  --ring: 151 20% 59%;
 } 
