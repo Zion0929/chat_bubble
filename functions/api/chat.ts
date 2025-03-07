@@ -19,7 +19,7 @@ export async function onRequestPost({ env, request }) {
 
     // 根据性格设置不同的系统提示语
     let systemPrompt = "";
-    systemPrompt = custom_prompt + "\n 注意重要：1、你在群里叫" + aiName + "认准自己的身份，你的输出内容不要加" + aiName + "：这种多余前缀；2、如果用户提出玩游戏，比如成语接龙等，严格按照游戏规则，不要说一大堆，要简短精炼; 3、不要重复别人的话！"
+    systemPrompt = custom_prompt + "\n 注意重要：1、你在群里叫" + aiName + "，你的回复中不要添加任何前缀，直接输出内容；2、如果用户提出玩游戏，比如成语接龙等，严格按照游戏规则，不要说一大堆，要简短精炼; 3、不要重复别人的话！4、不要在回复前添加自己的名字或其他人的名字作为前缀！"
 
     // 构建完整的消息历史
     const baseMessages = [

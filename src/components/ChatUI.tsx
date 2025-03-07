@@ -212,8 +212,8 @@ const ChatUI = () => {
 
     // 构建历史消息数组
     let messageHistory = messages.map(msg => ({
-      role: 'user',
-      content: msg.sender.name == "我" ? 'user：' + msg.content :  msg.sender.name + '：' + msg.content,
+      role: msg.sender.name === "我" ? 'user' : 'assistant',
+      content: msg.content,
       name: msg.sender.name
     }));
     let selectedGroupAiCharacters = groupAiCharacters;
@@ -331,8 +331,8 @@ const ChatUI = () => {
 
         // 将当前AI的回复添加到消息历史中，供下一个AI使用
         messageHistory.push({
-          role: 'user',
-          content: aiMessage.sender.name + '：' + completeResponse,
+          role: 'assistant',
+          content: completeResponse,
           name: aiMessage.sender.name
         });
 
@@ -380,15 +380,15 @@ const ChatUI = () => {
   return (
     <>
       <KaTeXStyle />
-      <div className="fixed inset-0 bg-gradient-to-br from-orange-50 via-orange-50/70 to-orange-100 flex items-start md:items-center justify-center overflow-hidden">
+      <div className="fixed inset-0 bg-gradient-to-br from-[#CCE8C6] via-[#D8E2DC] to-[#84A98C] flex items-start md:items-center justify-center overflow-hidden">
         <div className="h-full flex flex-col bg-white w-full mx-auto relative shadow-xl md:max-w-3xl md:h-[95dvh] md:my-auto md:rounded-lg">
           {/* Header */}
-          <header className="bg-white shadow flex-none md:rounded-t-lg">
+          <header className="bg-[#F5F7F5] shadow-sm flex-none md:rounded-t-lg border-b border-[#CCD5AE]">
             <div className="flex items-center justify-between px-4 py-3">
               {/* 左侧群组信息 */}
               <div className="flex items-center gap-1.5">
                 <div className="relative w-10 h-10">
-                  <div className="w-full h-full overflow-hidden bg-white border border-gray-200">
+                  <div className="w-full h-full overflow-hidden bg-white border border-[#CCD5AE] rounded-lg">
                     {users.length === 1 ? (
                       <SingleAvatar user={users[0]} />
                     ) : users.length === 2 ? (
@@ -464,7 +464,7 @@ const ChatUI = () => {
           </header>
 
           {/* Main Chat Area */}
-          <div className="flex-1 overflow-hidden bg-gray-100">
+          <div className="flex-1 overflow-hidden bg-[#F5F7F5]">
             <ScrollArea className="h-full p-2" ref={chatAreaRef}>
               <div className="space-y-4">
                 {messages.map((message) => (
@@ -482,9 +482,11 @@ const ChatUI = () => {
                       </Avatar>
                     )}
                     <div className={message.sender.name === "我" ? "text-right" : ""}>
-                      <div className="text-sm text-gray-500">{message.sender.name}</div>
-                      <div className={`mt-1 p-3 rounded-lg shadow-sm chat-message ${
-                        message.sender.name === "我" ? "bg-blue-500 text-white text-left" : "bg-white"
+                      <div className="text-sm text-[#84A98C] mb-1">{message.sender.name}</div>
+                      <div className={`p-3 rounded-2xl shadow-sm transition-shadow hover:shadow-md chat-message max-w-[85%] ${
+                        message.sender.name === "我" 
+                          ? "bg-[#84A98C] text-white text-left ml-auto rounded-tr-md" 
+                          : "bg-white/95 backdrop-blur-sm rounded-tl-md"
                       }`}>
                         <ReactMarkdown 
                           remarkPlugins={[remarkGfm, remarkMath]}
@@ -552,8 +554,8 @@ const ChatUI = () => {
           </div>
 
           {/* Input Area */}
-          <div className="bg-white border-t pb-3 pt-3 px-4 md:rounded-b-lg">
-            <div className="flex gap-1 pb-[env(safe-area-inset-bottom)]">
+          <div className="bg-[#F5F7F5] border-t border-[#CCD5AE] pb-3 pt-3 px-4 md:rounded-b-lg">
+            <div className="flex gap-2 pb-[env(safe-area-inset-bottom)]">
               {messages.length > 0 && (
                 <TooltipProvider>
                   <Tooltip>
@@ -562,7 +564,7 @@ const ChatUI = () => {
                         variant="outline"
                         size="icon"
                         onClick={handleShareChat}
-                        className="px-3"
+                        className="px-3 border-[#CCD5AE] text-[#84A98C] hover:text-[#84A98C]/80 rounded-xl hover:bg-[#CCE8C6]/20"
                       >
                         <Share2 className="w-4 h-4" />
                       </Button>
@@ -575,7 +577,7 @@ const ChatUI = () => {
               )}
               <Input 
                 placeholder="输入消息..." 
-                className="flex-1"
+                className="flex-1 rounded-xl border-[#CCD5AE] focus:ring-1 focus:ring-[#84A98C] focus:border-[#84A98C] bg-white/80 placeholder:text-[#84A98C]/50"
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
@@ -583,9 +585,10 @@ const ChatUI = () => {
               <Button 
                 onClick={handleSendMessage}
                 disabled={isLoading}
+                className="bg-[#84A98C] hover:bg-[#84A98C]/90 rounded-xl px-4"
               >
                 {isLoading ? (
-                  <div className="w-4 h-4 mr-2 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  <div className="w-4 h-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
                 ) : (
                   <Send className="w-4 h-4" />
                 )}

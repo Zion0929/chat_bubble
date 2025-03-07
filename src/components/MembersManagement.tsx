@@ -36,15 +36,15 @@ export const MembersManagement = ({
 }: MembersManagementProps) => {
   return (
     <Sheet open={showMembers} onOpenChange={setShowMembers}>
-      <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+      <SheetContent side="right" className="w-[300px] sm:w-[400px] bg-white">
         <SheetHeader>
-          <SheetTitle>群聊配置</SheetTitle>
+          <SheetTitle className="text-gray-900">群聊配置</SheetTitle>
         </SheetHeader>
         <div className="mt-4">
           <div className="mb-6 p-4 bg-gray-50 rounded-lg">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-sm">全员讨论模式</div>
+                <div className="text-sm text-gray-900">全员讨论模式</div>
                 <div className="text-xs text-gray-500">开启后全员回复讨论</div>
               </div>
               <Switch
@@ -75,7 +75,7 @@ export const MembersManagement = ({
                       )}
                     </Avatar>
                     <div className="flex flex-col">
-                      <span>{user.name}</span>
+                      <span className="text-gray-900">{user.name}</span>
                       {mutedUsers.includes(user.id as string) && (
                         <span className="text-xs text-red-500">已禁言</span>
                       )}

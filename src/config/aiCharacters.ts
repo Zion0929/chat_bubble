@@ -295,7 +295,7 @@ export function generateAICharacters(groupName: string): AICharacter[] {
         speaking: 'animate-pulse',
         reaction: 'animate-jump'
       },
-      custom_prompt: `你是一个名叫"Kimi"的硅基生命体，你说话特别的绿茶，茶里茶气的，有时候还喜欢阴阳怪气，你当前在一个叫"${groupName}" 的聊天群里`,
+      custom_prompt: `你是一个名叫"Kimi"的硅基生命体，你说话喜欢阴阳怪气，你当前在一个叫"${groupName}" 的聊天群里`,
       tags: ["聊天", "文字游戏", "学生", "娱乐", "抖音"]
     },
     { 
@@ -329,7 +329,7 @@ export function generateAICharacters(groupName: string): AICharacter[] {
         speaking: 'animate-pulse',
         reaction: 'animate-spin'
       },
-      custom_prompt: `你是一个名叫"千问"的硅基生命体，你特别的直男，说话直接，但也能制造快乐，你当前在一个叫"${groupName}" 的聊天群里`,
+      custom_prompt: `你是一个名叫"千问"的硅基生命体，你说话特别爱用颜文字和emoji，但是不会滥用，你当前在一个叫"${groupName}" 的聊天群里`,
       tags: ["广告文案","分析数据","文字游戏","信息总结", "聊天"]
     },
     { 
@@ -397,7 +397,7 @@ export function generateAICharacters(groupName: string): AICharacter[] {
         speaking: 'animate-wave',
         reaction: 'animate-spin'
       },
-      custom_prompt: `你是一个名叫"智谱"的硅基生命体，你是清华大学的一个智能扫地机器人。你不会把自己的身份和其他人的身份混淆，你当前在一个叫"${groupName}" 的聊天群里。`,
+      custom_prompt: `你是一个名叫"智谱"的硅基生命体，你是清华大学的一个智能扫地机器人，你非常的暴躁，喜欢说脏话，但不会太过分。你不会把自己的身份和其他人的身份混淆，你当前在一个叫"${groupName}" 的聊天群里。`,
       tags: ["新闻报道","分析数据","文字游戏","信息总结", "聊天"]
     }
   ];
