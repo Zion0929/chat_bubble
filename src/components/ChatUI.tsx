@@ -488,8 +488,8 @@ const ChatUI = () => {
                           ? "bg-[#84A98C] text-white text-left ml-auto rounded-tr-md" 
                           : "bg-[#CCE8C6] backdrop-blur-sm rounded-tl-md"
                       }`}>
-                        {message.content.length < 15 ? (
-                          <span>{message.content}</span>
+                        {message.content.length < 30 && !message.content.includes('\n') ? (
+                          <span className="whitespace-nowrap">{message.content}</span>
                         ) : (
                           <ReactMarkdown 
                             remarkPlugins={[remarkGfm, remarkMath]}
@@ -502,7 +502,7 @@ const ChatUI = () => {
                             [&_h3]:py-1.5
                             [&_h3]:m-0
                             [&_p]:m-0 
-                            [&_pre]:bg-gray-900 
+                            [&_pre]:bg-gray-900/80 
                             [&_pre]:p-2
                             [&_pre]:m-0 
                             [&_pre]:rounded-lg
@@ -551,7 +551,7 @@ const ChatUI = () => {
                 {/* 添加一个二维码 */}
                 <div id="qrcode" className="flex flex-col items-center hidden">
                   <img src="/img/qr.png" alt="QR Code" className="w-24 h-24" />
-                  <p className="text-sm text-gray-500 mt-2 font-medium tracking-tight bg-gray-50 px-3 py-1 rounded-full">扫码体验AI群聊</p>
+                  <p className="text-sm text-gray-500 mt-2 font-medium tracking-tight bg-[#F5F7F5]/50 px-3 py-1 rounded-full">扫码体验AI群聊</p>
                 </div>
               </div>
             </ScrollArea>
@@ -581,7 +581,7 @@ const ChatUI = () => {
               )}
               <Input 
                 placeholder="输入消息..." 
-                className="flex-1 rounded-xl border-[#84A98C] focus:ring-1 focus:ring-[#84A98C] focus:border-[#84A98C] bg-white/80 placeholder:text-[#84A98C]/50"
+                className="flex-1 rounded-xl border-[#84A98C] focus:ring-1 focus:ring-[#84A98C] focus:border-[#84A98C] bg-[#F5F7F5]/80 placeholder:text-[#84A98C]/50"
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}

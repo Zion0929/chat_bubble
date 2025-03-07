@@ -41,13 +41,18 @@ export async function onRequestPost({ env, request }) {
       // 方舟 API - 使用 OpenAI 兼容接口
       const openai = new OpenAI({
         apiKey: apiKey,
-        baseURL: modelConfig.baseURL
+        baseURL: modelConfig.baseURL,
+        defaultHeaders: {
+          'Authorization': `Bearer ${apiKey}`
+        }
       });
 
       const stream = await openai.chat.completions.create({
         model: model,
         messages: messages,
-        stream: true
+        stream: true,
+        temperature: 0.7,
+        max_tokens: 1000
       });
 
       // 创建 ReadableStream
@@ -117,14 +122,18 @@ export async function onRequestPost({ env, request }) {
       // Moonshot API - 使用 OpenAI 兼容接口
       const openai = new OpenAI({
         apiKey: apiKey,
-        baseURL: modelConfig.baseURL
+        baseURL: modelConfig.baseURL,
+        defaultHeaders: {
+          'Authorization': `Bearer ${apiKey}`
+        }
       });
 
       const stream = await openai.chat.completions.create({
         model: model,
         messages: messages,
         stream: true,
-        temperature: 0.3
+        temperature: 0.7,
+        max_tokens: 1000
       });
 
       // 创建 ReadableStream
