@@ -38,7 +38,7 @@ export async function onRequestPost({ env, request }) {
 
     // 根据不同的模型使用不同的 API 调用方式
     if (model === "doubao-1.5-lite") {
-      // 直接使用 fetch 调用方舟 API
+      // 方舟 API
       const response = await fetch(`${modelConfig.baseURL}/chat/completions`, {
         method: 'POST',
         headers: {
@@ -52,7 +52,65 @@ export async function onRequestPost({ env, request }) {
         })
       });
 
-      // 返回流式响应
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(`方舟API请求失败: ${response.status} ${errorData.error || response.statusText}`);
+      }
+
+      return new Response(response.body, {
+        headers: {
+          'Content-Type': 'text/event-stream',
+          'Cache-Control': 'no-cache',
+          'Connection': 'keep-alive',
+        },
+      });
+    } else if (model === "glm-4-plus") {
+      // 智谱 API
+      const response = await fetch(`${modelConfig.baseURL}/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': apiKey
+        },
+        body: JSON.stringify({
+          model: model,
+          messages: messages,
+          stream: true
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(`智谱API请求失败: ${response.status} ${errorData.error || response.statusText}`);
+      }
+
+      return new Response(response.body, {
+        headers: {
+          'Content-Type': 'text/event-stream',
+          'Cache-Control': 'no-cache',
+          'Connection': 'keep-alive',
+        },
+      });
+    } else if (model === "moonshot-v1-8k") {
+      // Moonshot API
+      const response = await fetch(`${modelConfig.baseURL}/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          model: model,
+          messages: messages,
+          stream: true
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(`Moonshot API请求失败: ${response.status} ${errorData.error || response.statusText}`);
+      }
+
       return new Response(response.body, {
         headers: {
           'Content-Type': 'text/event-stream',
