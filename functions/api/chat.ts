@@ -1,3 +1,7 @@
+/// <reference lib="es2015" />
+/// <reference types="openai" />
+declare module "openai";
+
 import OpenAI from 'openai';
 import { modelConfigs } from '../../src/config/aiCharacters';
 
@@ -5,7 +9,7 @@ export async function onRequestPost({ env, request }) {
   try {
     const { message, custom_prompt, history, aiName, index, model = "qwen-plus" } = await request.json();
     
-    const modelConfig = modelConfigs.find(config => config.model === model);
+    const modelConfig = Array.from(modelConfigs).find(config => config.model === model);
 
     if (!modelConfig) {
       throw new Error('不支持的模型类型');
@@ -42,9 +46,9 @@ export async function onRequestPost({ env, request }) {
       const openai = new OpenAI({
         apiKey: apiKey,
         baseURL: modelConfig.baseURL,
-        defaultHeaders: modelConfig.headers ? {
+        defaultHeaders: (('headers' in modelConfig && modelConfig.headers) ? {
           [Object.keys(modelConfig.headers)[0]]: modelConfig.headers[Object.keys(modelConfig.headers)[0]].replace('{apiKey}', apiKey)
-        } : undefined
+        } : undefined),
       });
 
       const stream = await openai.chat.completions.create({
@@ -62,7 +66,10 @@ export async function onRequestPost({ env, request }) {
             for await (const chunk of stream) {
               const content = chunk.choices[0]?.delta?.content || '';
               if (content) {
-                controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ content })}\n\n`));
+                const trimmedContent = content.replace(/^[\s,，。\.]+/, '');
+                if (trimmedContent) {
+                  controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ content: trimmedContent })}\n\n`));
+                }
               }
             }
             controller.close();
@@ -85,9 +92,9 @@ export async function onRequestPost({ env, request }) {
       const openai = new OpenAI({
         apiKey: apiKey,
         baseURL: modelConfig.baseURL,
-        defaultHeaders: {
-          'Authorization': `Bearer ${apiKey}`
-        }
+        defaultHeaders: (('headers' in modelConfig && modelConfig.headers) ? {
+          [Object.keys(modelConfig.headers)[0]]: modelConfig.headers[Object.keys(modelConfig.headers)[0]].replace('{apiKey}', apiKey)
+        } : undefined),
       });
 
       const stream = await openai.chat.completions.create({
@@ -95,7 +102,9 @@ export async function onRequestPost({ env, request }) {
         messages: messages,
         stream: true,
         temperature: 0.7,
-        max_tokens: 1000
+        max_tokens: 1000,
+        do_sample: true,
+        top_p: 0.7
       });
 
       // 创建 ReadableStream
@@ -128,93 +137,32 @@ export async function onRequestPost({ env, request }) {
         },
       });
     } else if (model === "moonshot-v1-8k") {
-      // Moonshot API - 使用 OpenAI 兼容接口
+      // Moonshot API - 使用 OpenAI 兼容接口 (按照 Kimi 官方示例，采用非流式调用)
       const openai = new OpenAI({
         apiKey: apiKey,
         baseURL: modelConfig.baseURL,
-        defaultHeaders: modelConfig.headers ? {
+        defaultHeaders: (('headers' in modelConfig && modelConfig.headers) ? {
           [Object.keys(modelConfig.headers)[0]]: modelConfig.headers[Object.keys(modelConfig.headers)[0]].replace('{apiKey}', apiKey)
-        } : undefined
+        } : undefined),
       });
 
-      const stream = await openai.chat.completions.create({
+      const result = await openai.chat.completions.create({
         model: model,
         messages: messages,
-        stream: true,
-        temperature: 0.7,
+        stream: false,
+        temperature: 0.3,
         max_tokens: 1000
       });
 
-      // 创建 ReadableStream
-      const readable = new ReadableStream({
-        async start(controller) {
-          try {
-            for await (const chunk of stream) {
-              const content = chunk.choices[0]?.delta?.content || '';
-              if (content) {
-                controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ content })}\n\n`));
-              }
-            }
-            controller.close();
-          } catch (error) {
-            controller.error(error);
-            console.error(error);
-          }
-        },
-      });
-
-      return new Response(readable, {
-        headers: {
-          'Content-Type': 'text/event-stream',
-          'Cache-Control': 'no-cache',
-          'Connection': 'keep-alive',
-        },
-      });
-    } else {
-      // 使用 OpenAI 兼容接口
-      const openai = new OpenAI({
-        apiKey: apiKey,
-        baseURL: modelConfig.baseURL
-      });
-
-      const stream = await openai.chat.completions.create({
-        model: model,
-        messages: messages,
-        stream: true,
-      });
-
-      // 创建 ReadableStream
-      const readable = new ReadableStream({
-        async start(controller) {
-          try {
-            for await (const chunk of stream) {
-              const content = chunk.choices[0]?.delta?.content || '';
-              if (content) {
-                controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ content })}\n\n`));
-              }
-            }
-            controller.close();
-          } catch (error) {
-            controller.error(error);
-            console.error(error);
-          }
-        },
-      });
-
-      return new Response(readable, {
-        headers: {
-          'Content-Type': 'text/event-stream',
-          'Cache-Control': 'no-cache',
-          'Connection': 'keep-alive',
-        },
+      const content = result.choices[0]?.message?.content || '';
+      return new Response(JSON.stringify({ content }), {
+        headers: { 'Content-Type': 'application/json' }
       });
     }
-
   } catch (error) {
     console.error(error);
-    return Response.json(
-      { error: error.message },
-      { status: 500 }
-    );
+    return new Response(JSON.stringify({ error: error.message }), {
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
-} 
+}
