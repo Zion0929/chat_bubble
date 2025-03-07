@@ -18,7 +18,10 @@ export const modelConfigs = [
   {
     model: "moonshot-v1-8k",
     apiKey: "MOONSHOT_API_KEY",
-    baseURL: "https://api.moonshot.cn/v1"
+    baseURL: "https://api.moonshot.cn/v1",
+    headers: {
+      'Authorization': 'Bearer {apiKey}'
+    }
   },
   {
     model: "glm-4-plus",
@@ -33,7 +36,10 @@ export const modelConfigs = [
   {
     model: "doubao-1.5-lite-32k",  // 豆包的 Model ID
     apiKey: "ARK_API_KEY",  // 使用方舟的 API Key
-    baseURL: "https://api.ark.bytedance.com/v1"  // 方舟的 API 基础 URL
+    baseURL: "https://api.ark.bytedance.com/v1",  // 方舟的 API 基础 URL
+    headers: {
+      'X-API-KEY': '{apiKey}'
+    }
   },
 ] as const;
 export type ModelType = typeof modelConfigs[number]["model"];

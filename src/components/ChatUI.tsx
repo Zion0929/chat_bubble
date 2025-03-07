@@ -489,7 +489,7 @@ const ChatUI = () => {
                           : "bg-[#CCE8C6] backdrop-blur-sm rounded-tl-md"
                       }`}>
                         {message.content.length < 30 && !message.content.includes('\n') ? (
-                          <span className="whitespace-nowrap">{message.content}</span>
+                          <span className="whitespace-nowrap">{message.content.trim()}</span>
                         ) : (
                           <ReactMarkdown 
                             remarkPlugins={[remarkGfm, remarkMath]}
@@ -526,7 +526,7 @@ const ChatUI = () => {
                             [&_blockquote]:my-2
                             [&_blockquote]:italic`}
                           >
-                            {message.content}
+                            {message.content.trim()}
                           </ReactMarkdown>
                         )}
                         {message.isAI && isTyping && currentMessageRef.current === message.id && (

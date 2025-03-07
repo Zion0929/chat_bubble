@@ -42,9 +42,9 @@ export async function onRequestPost({ env, request }) {
       const openai = new OpenAI({
         apiKey: apiKey,
         baseURL: modelConfig.baseURL,
-        defaultHeaders: {
-          'Authorization': `Bearer ${apiKey}`
-        }
+        defaultHeaders: modelConfig.headers ? {
+          [Object.keys(modelConfig.headers)[0]]: modelConfig.headers[Object.keys(modelConfig.headers)[0]].replace('{apiKey}', apiKey)
+        } : undefined
       });
 
       const stream = await openai.chat.completions.create({
@@ -84,13 +84,18 @@ export async function onRequestPost({ env, request }) {
       // 智谱 API - 使用 OpenAI 兼容接口
       const openai = new OpenAI({
         apiKey: apiKey,
-        baseURL: modelConfig.baseURL
+        baseURL: modelConfig.baseURL,
+        defaultHeaders: {
+          'Authorization': `Bearer ${apiKey}`
+        }
       });
 
       const stream = await openai.chat.completions.create({
         model: model,
         messages: messages,
-        stream: true
+        stream: true,
+        temperature: 0.7,
+        max_tokens: 1000
       });
 
       // 创建 ReadableStream
@@ -100,7 +105,11 @@ export async function onRequestPost({ env, request }) {
             for await (const chunk of stream) {
               const content = chunk.choices[0]?.delta?.content || '';
               if (content) {
-                controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ content })}\n\n`));
+                // 去除可能的前导空格和标点
+                const trimmedContent = content.replace(/^[\s,，。\.]+/, '');
+                if (trimmedContent) {
+                  controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ content: trimmedContent })}\n\n`));
+                }
               }
             }
             controller.close();
@@ -123,9 +132,9 @@ export async function onRequestPost({ env, request }) {
       const openai = new OpenAI({
         apiKey: apiKey,
         baseURL: modelConfig.baseURL,
-        defaultHeaders: {
-          'Authorization': `Bearer ${apiKey}`
-        }
+        defaultHeaders: modelConfig.headers ? {
+          [Object.keys(modelConfig.headers)[0]]: modelConfig.headers[Object.keys(modelConfig.headers)[0]].replace('{apiKey}', apiKey)
+        } : undefined
       });
 
       const stream = await openai.chat.completions.create({
