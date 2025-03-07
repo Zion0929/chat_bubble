@@ -31,7 +31,7 @@ export const modelConfigs = [
     baseURL: "https://dashscope.aliyuncs.com/compatible-mode/v1"
   },
   {
-    model: "doubao-1.5-lite",  // 豆包的 Model ID
+    model: "doubao-1.5-lite-32k",  // 豆包的 Model ID
     apiKey: "ARK_API_KEY",  // 使用方舟的 API Key
     baseURL: "https://api.ark.bytedance.com/v1"  // 方舟的 API 基础 URL
   },

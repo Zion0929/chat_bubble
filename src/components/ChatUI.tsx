@@ -381,14 +381,14 @@ const ChatUI = () => {
     <>
       <KaTeXStyle />
       <div className="fixed inset-0 bg-gradient-to-br from-[#CCE8C6] via-[#D8E2DC] to-[#84A98C] flex items-start md:items-center justify-center overflow-hidden">
-        <div className="h-full flex flex-col bg-white w-full mx-auto relative shadow-xl md:max-w-3xl md:h-[95dvh] md:my-auto md:rounded-lg">
+        <div className="h-full flex flex-col bg-[#F5F7F5] w-full mx-auto relative shadow-xl md:max-w-3xl md:h-[95dvh] md:my-auto md:rounded-lg">
           {/* Header */}
-          <header className="bg-[#F5F7F5] shadow-sm flex-none md:rounded-t-lg border-b border-[#CCD5AE]">
+          <header className="bg-[#CCE8C6] shadow-sm flex-none md:rounded-t-lg border-b border-[#84A98C]">
             <div className="flex items-center justify-between px-4 py-3">
               {/* 左侧群组信息 */}
               <div className="flex items-center gap-1.5">
                 <div className="relative w-10 h-10">
-                  <div className="w-full h-full overflow-hidden bg-white border border-[#CCD5AE] rounded-lg">
+                  <div className="w-full h-full overflow-hidden bg-white border border-[#84A98C] rounded-lg">
                     {users.length === 1 ? (
                       <SingleAvatar user={users[0]} />
                     ) : users.length === 2 ? (
@@ -486,45 +486,49 @@ const ChatUI = () => {
                       <div className={`p-3 rounded-2xl shadow-sm transition-shadow hover:shadow-md chat-message max-w-[85%] ${
                         message.sender.name === "我" 
                           ? "bg-[#84A98C] text-white text-left ml-auto rounded-tr-md" 
-                          : "bg-white/95 backdrop-blur-sm rounded-tl-md"
+                          : "bg-[#CCE8C6] backdrop-blur-sm rounded-tl-md"
                       }`}>
-                        <ReactMarkdown 
-                          remarkPlugins={[remarkGfm, remarkMath]}
-                          rehypePlugins={[rehypeKatex]}
-                          className={`prose dark:prose-invert max-w-none ${
-                            message.sender.name === "我" ? "text-white [&_*]:text-white" : ""
-                          }
-                          [&_h2]:py-1
-                          [&_h2]:m-0
-                          [&_h3]:py-1.5
-                          [&_h3]:m-0
-                          [&_p]:m-0 
-                          [&_pre]:bg-gray-900 
-                          [&_pre]:p-2
-                          [&_pre]:m-0 
-                          [&_pre]:rounded-lg
-                          [&_pre]:text-gray-100
-                          [&_pre]:whitespace-pre-wrap
-                          [&_pre]:break-words
-                          [&_pre_code]:whitespace-pre-wrap
-                          [&_pre_code]:break-words
-                          [&_code]:text-sm
-                          [&_code]:text-gray-400
-                          [&_code:not(:where([class~="language-"]))]:text-pink-500
-                          [&_code:not(:where([class~="language-"]))]:bg-transparent
-                          [&_a]:text-blue-500
-                          [&_a]:no-underline
-                          [&_ul]:my-2
-                          [&_ol]:my-2
-                          [&_li]:my-1
-                          [&_blockquote]:border-l-4
-                          [&_blockquote]:border-gray-300
-                          [&_blockquote]:pl-4
-                          [&_blockquote]:my-2
-                          [&_blockquote]:italic`}
-                        >
-                          {message.content}
-                        </ReactMarkdown>
+                        {message.content.length < 15 ? (
+                          <span>{message.content}</span>
+                        ) : (
+                          <ReactMarkdown 
+                            remarkPlugins={[remarkGfm, remarkMath]}
+                            rehypePlugins={[rehypeKatex]}
+                            className={`prose dark:prose-invert max-w-none ${
+                              message.sender.name === "我" ? "text-white [&_*]:text-white" : ""
+                            }
+                            [&_h2]:py-1
+                            [&_h2]:m-0
+                            [&_h3]:py-1.5
+                            [&_h3]:m-0
+                            [&_p]:m-0 
+                            [&_pre]:bg-gray-900 
+                            [&_pre]:p-2
+                            [&_pre]:m-0 
+                            [&_pre]:rounded-lg
+                            [&_pre]:text-gray-100
+                            [&_pre]:whitespace-pre-wrap
+                            [&_pre]:break-words
+                            [&_pre_code]:whitespace-pre-wrap
+                            [&_pre_code]:break-words
+                            [&_code]:text-sm
+                            [&_code]:text-gray-400
+                            [&_code:not(:where([class~="language-"]))]:text-pink-500
+                            [&_code:not(:where([class~="language-"]))]:bg-transparent
+                            [&_a]:text-blue-500
+                            [&_a]:no-underline
+                            [&_ul]:my-2
+                            [&_ol]:my-2
+                            [&_li]:my-1
+                            [&_blockquote]:border-l-4
+                            [&_blockquote]:border-gray-300
+                            [&_blockquote]:pl-4
+                            [&_blockquote]:my-2
+                            [&_blockquote]:italic`}
+                          >
+                            {message.content}
+                          </ReactMarkdown>
+                        )}
                         {message.isAI && isTyping && currentMessageRef.current === message.id && (
                           <span className="typing-indicator ml-1">▋</span>
                         )}
@@ -554,7 +558,7 @@ const ChatUI = () => {
           </div>
 
           {/* Input Area */}
-          <div className="bg-[#F5F7F5] border-t border-[#CCD5AE] pb-3 pt-3 px-4 md:rounded-b-lg">
+          <div className="bg-[#CCE8C6] border-t border-[#84A98C] pb-3 pt-3 px-4 md:rounded-b-lg">
             <div className="flex gap-2 pb-[env(safe-area-inset-bottom)]">
               {messages.length > 0 && (
                 <TooltipProvider>
@@ -564,7 +568,7 @@ const ChatUI = () => {
                         variant="outline"
                         size="icon"
                         onClick={handleShareChat}
-                        className="px-3 border-[#CCD5AE] text-[#84A98C] hover:text-[#84A98C]/80 rounded-xl hover:bg-[#CCE8C6]/20"
+                        className="px-3 border-[#84A98C] text-[#84A98C] hover:text-[#84A98C]/80 rounded-xl hover:bg-[#CCE8C6]/20"
                       >
                         <Share2 className="w-4 h-4" />
                       </Button>
@@ -577,7 +581,7 @@ const ChatUI = () => {
               )}
               <Input 
                 placeholder="输入消息..." 
-                className="flex-1 rounded-xl border-[#CCD5AE] focus:ring-1 focus:ring-[#84A98C] focus:border-[#84A98C] bg-white/80 placeholder:text-[#84A98C]/50"
+                className="flex-1 rounded-xl border-[#84A98C] focus:ring-1 focus:ring-[#84A98C] focus:border-[#84A98C] bg-white/80 placeholder:text-[#84A98C]/50"
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}

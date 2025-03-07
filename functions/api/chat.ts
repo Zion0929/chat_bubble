@@ -37,27 +37,38 @@ export async function onRequestPost({ env, request }) {
     const messages = baseMessages;
 
     // 根据不同的模型使用不同的 API 调用方式
-    if (model === "doubao-1.5-lite") {
-      // 方舟 API
-      const response = await fetch(`${modelConfig.baseURL}/chat/completions`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({
-          model: model,
-          messages: messages,
-          stream: true
-        })
+    if (model === "doubao-1.5-lite-32k") {
+      // 方舟 API - 使用 OpenAI 兼容接口
+      const openai = new OpenAI({
+        apiKey: apiKey,
+        baseURL: modelConfig.baseURL
       });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(`方舟API请求失败: ${response.status} ${errorData.error || response.statusText}`);
-      }
+      const stream = await openai.chat.completions.create({
+        model: model,
+        messages: messages,
+        stream: true
+      });
 
-      return new Response(response.body, {
+      // 创建 ReadableStream
+      const readable = new ReadableStream({
+        async start(controller) {
+          try {
+            for await (const chunk of stream) {
+              const content = chunk.choices[0]?.delta?.content || '';
+              if (content) {
+                controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ content })}\n\n`));
+              }
+            }
+            controller.close();
+          } catch (error) {
+            controller.error(error);
+            console.error(error);
+          }
+        },
+      });
+
+      return new Response(readable, {
         headers: {
           'Content-Type': 'text/event-stream',
           'Cache-Control': 'no-cache',
@@ -65,26 +76,37 @@ export async function onRequestPost({ env, request }) {
         },
       });
     } else if (model === "glm-4-plus") {
-      // 智谱 API
-      const response = await fetch(`${modelConfig.baseURL}/chat/completions`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': apiKey
-        },
-        body: JSON.stringify({
-          model: model,
-          messages: messages,
-          stream: true
-        })
+      // 智谱 API - 使用 OpenAI 兼容接口
+      const openai = new OpenAI({
+        apiKey: apiKey,
+        baseURL: modelConfig.baseURL
       });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(`智谱API请求失败: ${response.status} ${errorData.error || response.statusText}`);
-      }
+      const stream = await openai.chat.completions.create({
+        model: model,
+        messages: messages,
+        stream: true
+      });
 
-      return new Response(response.body, {
+      // 创建 ReadableStream
+      const readable = new ReadableStream({
+        async start(controller) {
+          try {
+            for await (const chunk of stream) {
+              const content = chunk.choices[0]?.delta?.content || '';
+              if (content) {
+                controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ content })}\n\n`));
+              }
+            }
+            controller.close();
+          } catch (error) {
+            controller.error(error);
+            console.error(error);
+          }
+        },
+      });
+
+      return new Response(readable, {
         headers: {
           'Content-Type': 'text/event-stream',
           'Cache-Control': 'no-cache',
@@ -92,26 +114,38 @@ export async function onRequestPost({ env, request }) {
         },
       });
     } else if (model === "moonshot-v1-8k") {
-      // Moonshot API
-      const response = await fetch(`${modelConfig.baseURL}/chat/completions`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({
-          model: model,
-          messages: messages,
-          stream: true
-        })
+      // Moonshot API - 使用 OpenAI 兼容接口
+      const openai = new OpenAI({
+        apiKey: apiKey,
+        baseURL: modelConfig.baseURL
       });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(`Moonshot API请求失败: ${response.status} ${errorData.error || response.statusText}`);
-      }
+      const stream = await openai.chat.completions.create({
+        model: model,
+        messages: messages,
+        stream: true,
+        temperature: 0.3
+      });
 
-      return new Response(response.body, {
+      // 创建 ReadableStream
+      const readable = new ReadableStream({
+        async start(controller) {
+          try {
+            for await (const chunk of stream) {
+              const content = chunk.choices[0]?.delta?.content || '';
+              if (content) {
+                controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ content })}\n\n`));
+              }
+            }
+            controller.close();
+          } catch (error) {
+            controller.error(error);
+            console.error(error);
+          }
+        },
+      });
+
+      return new Response(readable, {
         headers: {
           'Content-Type': 'text/event-stream',
           'Cache-Control': 'no-cache',
