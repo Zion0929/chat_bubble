@@ -1,0 +1,186 @@
+/* 修复UI问题的CSS */
+
+/* 确保用户消息可见 */
+.chat-message {
+  display: inline-block !important;
+  max-width: 85% !important;
+  min-width: 120px !important;
+  padding: 0.75rem !important;
+  border-radius: 1rem !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+  transition: all 0.3s !important;
+}
+
+/* 用户消息样式 */
+[data-sender="我"] .chat-message {
+  background-color: #84A98C !important;
+  color: #F5F7F5 !important;
+  text-align: left !important;
+  margin-left: auto !important;
+  border-top-right-radius: 0.375rem !important;
+}
+
+/* AI消息样式 */
+[data-sender]:not([data-sender="我"]) .chat-message {
+  background-color: #CCE8C6 !important;
+  color: #2D3A3A !important;
+  border-top-left-radius: 0.375rem !important;
+}
+
+/* 确保头像显示正确 */
+.avatar {
+  flex-shrink: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* 确保消息容器布局正确 */
+.message-container {
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 0.5rem !important;
+}
+
+.message-container[data-sender="我"] {
+  justify-content: flex-end !important;
+}
+
+/* 修复群聊配置面板样式 */
+.sheet-content {
+  background-color: white !important;
+  color: #2D3A3A !important;
+  border-left: 1px solid rgba(132, 169, 140, 0.2) !important;
+}
+
+/* 确保文本可见 */
+.text-gray-900 {
+  color: #2D3A3A !important;
+}
+
+/* 确保开关按钮样式正确 */
+.switch[data-state="checked"] {
+  background-color: #84A98C !important;
+}
+
+.switch[data-state="unchecked"] {
+  background-color: #CCE8C6 !important;
+}
+
+/* 确保按钮样式正确 */
+.button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* 确保滚动区域正常工作 */
+.scroll-area {
+  height: 100% !important;
+  overflow: auto !important;
+}
+
+/* 确保消息内容正确显示 */
+.prose {
+  max-width: none !important;
+  color: inherit !important;
+}
+
+.prose p {
+  margin: 0 !important;
+  color: inherit !important;
+}
+
+.prose * {
+  color: inherit !important;
+}
+
+/* 确保输入区域样式正确 */
+.input-area {
+  background-color: rgba(255, 255, 255, 0.25) !important;
+  backdrop-filter: blur(10px) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.18) !important;
+}
+
+/* 确保输入框样式正确 */
+.input {
+  flex: 1 !important;
+  border-radius: 0.75rem !important;
+  border-color: rgba(132, 169, 140, 0.4) !important;
+  background-color: rgba(245, 247, 245, 0.9) !important;
+}
+
+.input:focus {
+  border-color: #84A98C !important;
+  box-shadow: 0 0 0 2px rgba(132, 169, 140, 0.3) !important;
+}
+
+/* 确保发送按钮样式正确 */
+.send-button {
+  background-image: linear-gradient(135deg, #84A98C 0%, #52796F 100%) !important;
+  border-radius: 0.75rem !important;
+}
+
+.send-button:hover {
+  background-image: linear-gradient(135deg, #6B9080 0%, #84A98C 100%) !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* 强制覆盖样式 */
+[data-radix-popper-content-wrapper] {
+  background-color: white !important;
+  color: #2D3A3A !important;
+}
+
+.sheet-content * {
+  color: #2D3A3A !important;
+}
+
+.sheet-content .text-xs {
+  color: #84A98C !important;
+}
+
+.sheet-content .text-red-500 {
+  color: #B85555 !important;
+}
+
+/* 修复消息气泡样式 */
+.bg-gradient-to-br {
+  background-image: none !important;
+}
+
+[data-sender="我"] .chat-message {
+  background-color: #84A98C !important;
+}
+
+[data-sender]:not([data-sender="我"]) .chat-message {
+  background-color: #CCE8C6 !important;
+}
+
+/* 确保所有文本可见 */
+.text-[#F5F7F5] {
+  color: #F5F7F5 !important;
+}
+
+.text-[#2D3A3A] {
+  color: #2D3A3A !important;
+}
+
+/* 修复背景色 */
+.bg-white {
+  background-color: white !important;
+}
+
+/* 修复边框 */
+.border-[#84A98C] {
+  border-color: #84A98C !important;
+}
+
+/* 修复阴影 */
+.shadow-sm {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+}
+
+.shadow-md {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+} 

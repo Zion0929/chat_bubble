@@ -1,33 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Menu, MoreHorizontal, UserPlus, UserMinus, Users2, Users, MoreVertical, Share2, Mic, MicOff, Settings2 } from 'lucide-react';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { 
-  Tooltip, 
-  TooltipContent, 
-  TooltipProvider, 
-  TooltipTrigger 
-} from "@/components/ui/tooltip";
-
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet"
-
 import {generateAICharacters} from "@/config/aiCharacters";
 import { groups } from "@/config/groups";
 import type { AICharacter } from "@/config/aiCharacters";
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm'
-import remarkMath from 'remark-math'
-import rehypeKatex from 'rehype-katex'
-import html2canvas from 'html2canvas';
-import { SharePoster } from '@/components/SharePoster';
-import { MembersManagement } from '@/components/MembersManagement';
 
 // 更新主题常量
 const theme = {
@@ -70,7 +44,7 @@ const getAvatarData = (name: string) => {
 };
 
 // 单个完整头像
-const SingleAvatar = ({ user }: { user: User | AICharacter }) => {
+const SingleAvatar = ({ user }: { user: any }) => {
   // 如果有头像就使用头像，否则使用默认的文字头像
   if ('avatar' in user && user.avatar) {
     return (
@@ -91,7 +65,7 @@ const SingleAvatar = ({ user }: { user: User | AICharacter }) => {
 };
 
 // 左右分半头像
-const HalfAvatar = ({ user, isFirst }: { user: User, isFirst: boolean }) => {
+const HalfAvatar = ({ user, isFirst }: { user: any, isFirst: boolean }) => {
   if ('avatar' in user && user.avatar) {
     return (
       <div 
@@ -119,7 +93,7 @@ const HalfAvatar = ({ user, isFirst }: { user: User, isFirst: boolean }) => {
 };
 
 // 四分之一头像
-const QuarterAvatar = ({ user, index }: { user: User, index: number }) => {
+const QuarterAvatar = ({ user, index }: { user: any, index: number }) => {
   if ('avatar' in user && user.avatar) {
     return (
       <div 
@@ -524,24 +498,9 @@ const ChatUI = () => {
                   {users.slice(0, 4).map((user) => {
                     const avatarData = getAvatarData(user.name);
                     return (
-                      <TooltipProvider key={user.id}>
-                        <Tooltip>
-                          <TooltipTrigger>
-                            <Avatar className="w-7 h-7 border-2 border-[#F5F7F5] shadow-sm hover:shadow-md transition-shadow duration-300" style={{ boxShadow: 'var(--card-shadow)' }}>
-                              {'avatar' in user && user.avatar ? (
-                                <AvatarImage src={user.avatar} />
-                              ) : (
-                                <AvatarFallback style={{ backgroundColor: avatarData.backgroundColor, color: 'white' }}>
-                                  {avatarData.text}
-                                </AvatarFallback>
-                              )}
-                            </Avatar>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>{user.name}</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
+                      <div key={user.id} className="w-7 h-7 rounded-full bg-[#CCE8C6]/80 flex items-center justify-center text-xs border-2 border-[#F5F7F5] text-[#84A98C] font-medium shadow-sm hover:shadow-md transition-shadow duration-300" style={{ boxShadow: 'var(--card-shadow)' }}>
+                        {avatarData.text}
+                      </div>
                     );
                   })}
                   {users.length > 4 && (
@@ -568,87 +527,44 @@ const ChatUI = () => {
               <div className="space-y-4">
                 {messages.map((message) => (
                   <div key={message.id} 
-                    className={`flex items-start gap-2 ${message.sender.name === "我" ? "justify-end" : ""}`}>
+                    className={`flex items-start gap-2 ${message.sender.name === "我" ? "justify-end" : ""}`}
+                    data-sender={message.sender.name}>
                     {message.sender.name !== "我" && (
-                      <Avatar className="shadow-md" style={{ boxShadow: 'var(--card-shadow)' }}>
+                      <div className="flex-shrink-0 w-10 h-10 rounded-full overflow-hidden bg-[#84A98C] flex items-center justify-center text-white">
                         {'avatar' in message.sender && message.sender.avatar ? (
-                          <AvatarImage src={message.sender.avatar} className="w-10 h-10" />
+                          <img src={message.sender.avatar} alt={message.sender.name} className="w-full h-full object-cover" />
                         ) : (
-                        <AvatarFallback style={{ backgroundColor: getAvatarData(message.sender.name).backgroundColor, color: 'white' }}>
-                          {message.sender.name[0]}
-                        </AvatarFallback>
+                          <span>{message.sender.name[0]}</span>
                         )}
-                      </Avatar>
+                      </div>
                     )}
-                    <div className={message.sender.name === "我" ? "text-right" : ""}>
+                    <div className={`${message.sender.name === "我" ? "text-right" : ""} flex-1`}>
                       <div className="text-sm text-[#84A98C] font-medium mb-1">{message.sender.name}</div>
-                      <div className={`p-3 rounded-2xl shadow-sm transition-all duration-300 chat-message inline-block max-w-[85%] min-w-[120px] ${
+                      <div className={`p-3 rounded-2xl shadow-sm transition-all duration-300 inline-block max-w-[85%] min-w-[120px] ${
                         message.sender.name === "我" 
-                          ? "bg-gradient-to-br from-[#84A98C] via-[#6B9080] to-[#52796F] text-[#F5F7F5] text-left ml-auto rounded-tr-md hover:shadow-md" 
-                          : "bg-gradient-to-br from-[#CCE8C6]/80 via-[#D8E2DC]/80 to-[#CCD5AE]/80 text-[#2D3A3A] backdrop-blur-sm rounded-tl-md hover:shadow-md"
-                      }`} style={{ 
-                        backgroundImage: message.sender.name === "我" ? 'var(--message-gradient-user)' : 'var(--message-gradient-ai)',
-                        boxShadow: 'var(--card-shadow)',
-                      }}>
+                          ? "bg-[#84A98C] text-[#F5F7F5] text-left ml-auto rounded-tr-md" 
+                          : "bg-[#CCE8C6] text-[#2D3A3A] rounded-tl-md"
+                      }`}>
                         {message.content.length < 30 && !message.content.includes('\n') ? (
                           <span className="break-words whitespace-normal">{message.content.trim()}</span>
                         ) : (
-                          <ReactMarkdown 
-                            remarkPlugins={[remarkGfm, remarkMath]}
-                            rehypePlugins={[rehypeKatex]}
-                            className={`prose dark:prose-invert max-w-none ${
-                              message.sender.name === "我" 
-                                ? "text-[#F5F7F5] [&_*]:text-[#F5F7F5]" 
-                                : "text-[#2D3A3A] [&_*]:text-[#2D3A3A]"
-                            }
-                            [&_h2]:py-1
-                            [&_h2]:m-0
-                            [&_h3]:py-1.5
-                            [&_h3]:m-0
-                            [&_p]:m-0 
-                            [&_pre]:bg-[#2D3A3A]/80 
-                            [&_pre]:p-2
-                            [&_pre]:m-0 
-                            [&_pre]:rounded-lg
-                            [&_pre]:text-[#F5F7F5]
-                            [&_pre]:whitespace-pre-wrap
-                            [&_pre]:break-words
-                            [&_pre_code]:whitespace-pre-wrap
-                            [&_pre_code]:break-words
-                            [&_code]:text-sm
-                            [&_code]:text-[#84A98C]
-                            [&_code:not(:where([class~="language-"]))]:text-[#52796F]
-                            [&_code:not(:where([class~="language-"]))]:bg-transparent
-                            [&_a]:text-[#52796F]
-                            [&_a]:no-underline
-                            [&_ul]:my-2
-                            [&_ol]:my-2
-                            [&_li]:my-1
-                            [&_blockquote]:border-l-4
-                            [&_blockquote]:border-[#84A98C]/30
-                            [&_blockquote]:pl-4
-                            [&_blockquote]:my-2
-                            [&_blockquote]:italic
-                            [&_blockquote]:text-[#52796F]`}
-                          >
+                          <div className={message.sender.name === "我" ? "text-[#F5F7F5]" : "text-[#2D3A3A]"}>
                             {message.content.trim()}
-                          </ReactMarkdown>
+                          </div>
                         )}
                         {message.isAI && isTyping && currentMessageRef.current === message.id && (
-                          <span className="typing-indicator ml-1 text-[#84A98C]">▋</span>
+                          <span className="ml-1 text-[#84A98C]">▋</span>
                         )}
                       </div>
                     </div>
                     {message.sender.name === "我" && (
-                      <Avatar className="shadow-md" style={{ boxShadow: 'var(--card-shadow)' }}>
-                       {'avatar' in message.sender && message.sender.avatar ? (
-                          <AvatarImage src={message.sender.avatar} className="w-10 h-10" />
+                      <div className="flex-shrink-0 w-10 h-10 rounded-full overflow-hidden bg-[#84A98C] flex items-center justify-center text-white">
+                        {'avatar' in message.sender && message.sender.avatar ? (
+                          <img src={message.sender.avatar} alt={message.sender.name} className="w-full h-full object-cover" />
                         ) : (
-                        <AvatarFallback style={{ backgroundColor: getAvatarData(message.sender.name).backgroundColor, color: 'white' }}>
-                          {message.sender.name[0]}
-                        </AvatarFallback>
+                          <span>{message.sender.name[0]}</span>
                         )}
-                      </Avatar>
+                      </div>
                     )}
                   </div>
                 ))}
@@ -663,78 +579,171 @@ const ChatUI = () => {
           </div>
 
           {/* Input Area */}
-          <div className="bg-gradient-to-br from-[#CCE8C6]/30 via-[#D8E2DC]/30 to-[#CCD5AE]/30 border-t border-[#84A98C]/20 pb-3 pt-3 px-4 md:rounded-b-lg backdrop-blur-sm" style={{ background: 'var(--glass-bg)', backdropFilter: 'blur(10px)', borderTop: '1px solid var(--glass-border)' }}>
+          <div className="bg-[#F5F7F5] border-t border-[#84A98C]/20 pb-3 pt-3 px-4 md:rounded-b-lg">
             <div className="flex gap-2 pb-[env(safe-area-inset-bottom)]">
               {messages.length > 0 && (
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button 
-                        variant="outline"
-                        size="icon"
-                        onClick={handleShareChat}
-                        className="px-3 border-[#84A98C]/60 text-[#84A98C] hover:text-[#52796F] rounded-xl hover:bg-[#CCE8C6]/40 hover:border-[#84A98C] transition-colors shadow-sm"
-                        style={{ boxShadow: 'var(--card-shadow)' }}
-                      >
-                        <Share2 className="w-4 h-4" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent className="bg-[#F5F7F5] text-[#2D3A3A] border-[#84A98C]/20">
-                      <p>分享聊天记录</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                <button 
+                  onClick={handleShareChat}
+                  className="px-3 h-10 border border-[#84A98C]/60 text-[#84A98C] hover:text-[#52796F] rounded-xl hover:bg-[#CCE8C6]/40 hover:border-[#84A98C] transition-colors shadow-sm flex items-center justify-center"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="18" cy="5" r="3"></circle>
+                    <circle cx="6" cy="12" r="3"></circle>
+                    <circle cx="18" cy="19" r="3"></circle>
+                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+                  </svg>
+                </button>
               )}
-              <Input 
+              <input 
+                type="text"
                 placeholder="输入消息..." 
-                className="flex-1 rounded-xl border-[#84A98C]/40 focus:ring-2 focus:ring-[#84A98C]/30 focus:border-[#84A98C] bg-[#F5F7F5]/90 placeholder:text-[#84A98C]/60 text-[#2D3A3A] shadow-sm"
-                style={{ boxShadow: 'var(--card-shadow)' }}
+                className="flex-1 h-10 px-3 rounded-xl border border-[#84A98C]/40 focus:ring-2 focus:ring-[#84A98C]/30 focus:border-[#84A98C] bg-[#F5F7F5]/90 placeholder:text-[#84A98C]/60 text-[#2D3A3A] shadow-sm"
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
               />
-              <Button 
+              <button 
                 onClick={handleSendMessage}
                 disabled={isLoading}
-                className="bg-gradient-to-br from-[#84A98C] via-[#6B9080] to-[#52796F] hover:from-[#6B9080] hover:via-[#52796F] hover:to-[#84A98C] rounded-xl px-4 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
-                style={{ 
-                  backgroundImage: 'var(--button-gradient)', 
-                  boxShadow: 'var(--card-shadow)',
-                  '&:hover': {
-                    backgroundImage: 'var(--button-hover-gradient)',
-                    boxShadow: 'var(--hover-shadow)'
-                  }
-                }}
+                className="h-10 px-4 bg-[#84A98C] hover:bg-[#6B9080] rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md text-white flex items-center justify-center"
               >
                 {isLoading ? (
-                  <div className="w-4 h-4 animate-spin rounded-full border-2 border-[#F5F7F5] border-t-transparent" />
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                 ) : (
-                  <Send className="w-4 h-4" />
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                  </svg>
                 )}
-              </Button>
+              </button>
             </div>
           </div>
         </div>
 
         {/* Members Management Dialog */}
-        <MembersManagement 
-          showMembers={showMembers}
-          setShowMembers={setShowMembers}
-          users={users}
-          mutedUsers={mutedUsers}
-          handleToggleMute={handleToggleMute}
-          isGroupDiscussionMode={isGroupDiscussionMode}
-          onToggleGroupDiscussion={() => setIsGroupDiscussionMode(!isGroupDiscussionMode)}
-          getAvatarData={getAvatarData}
-        />
+        <div className={`fixed inset-y-0 right-0 w-[300px] sm:w-[400px] bg-white shadow-lg transform transition-transform duration-300 ${showMembers ? 'translate-x-0' : 'translate-x-full'}`}>
+          <div className="p-4 border-b border-[#84A98C]/20">
+            <div className="flex justify-between items-center">
+              <h2 className="text-[#2D3A3A] text-xl font-medium">群聊配置</h2>
+              <button 
+                onClick={() => setShowMembers(false)}
+                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#F5F7F5]"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div className="p-4">
+            <div className="mb-6 p-4 bg-[#F5F7F5] rounded-lg border border-[#84A98C]/20 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-sm text-[#2D3A3A] font-medium">全员讨论模式</div>
+                  <div className="text-xs text-[#84A98C]">开启后全员回复讨论</div>
+                </div>
+                <div 
+                  className={`w-10 h-5 rounded-full relative cursor-pointer ${isGroupDiscussionMode ? 'bg-[#84A98C]' : 'bg-[#CCE8C6]'}`}
+                  onClick={() => setIsGroupDiscussionMode(!isGroupDiscussionMode)}
+                >
+                  <div 
+                    className={`w-4 h-4 rounded-full bg-white absolute top-0.5 transition-transform ${isGroupDiscussionMode ? 'translate-x-5' : 'translate-x-0.5'}`}
+                  ></div>
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-between items-center mb-4">
+              <span className="text-sm text-[#84A98C]">当前成员（{users.length}）</span>
+              <button className="px-2 py-1 text-sm border border-[#84A98C]/40 text-[#84A98C] hover:bg-[#CCE8C6]/20 hover:text-[#52796F] rounded-md shadow-sm flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="8.5" cy="7" r="4"></circle>
+                  <line x1="20" y1="8" x2="20" y2="14"></line>
+                  <line x1="23" y1="11" x2="17" y2="11"></line>
+                </svg>
+                添加成员
+              </button>
+            </div>
+            <div className="h-[calc(100vh-250px)] overflow-auto pr-2">
+              <div className="space-y-2">
+                {users.map((user) => (
+                  <div key={user.id} className="flex items-center justify-between p-2 hover:bg-[#F5F7F5] rounded-lg transition-colors duration-200">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full overflow-hidden bg-[#84A98C] flex items-center justify-center text-white">
+                        {'avatar' in user && user.avatar ? (
+                          <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <span>{user.name[0]}</span>
+                        )}
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-[#2D3A3A] font-medium">{user.name}</span>
+                        {mutedUsers.includes(user.id as string) && (
+                          <span className="text-xs text-red-500">已禁言</span>
+                        )}
+                      </div>
+                    </div>
+                    {user.name !== "我" && (
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleToggleMute(user.id as string)}
+                          className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                            mutedUsers.includes(user.id as string) 
+                              ? "text-red-500 hover:bg-red-100/20" 
+                              : "text-green-500 hover:bg-green-100/20"
+                          }`}
+                        >
+                          {mutedUsers.includes(user.id as string) ? (
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <line x1="1" y1="1" x2="23" y2="23"></line>
+                              <path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6"></path>
+                              <path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2a7 7 0 0 1-.11 1.23"></path>
+                              <line x1="12" y1="19" x2="12" y2="23"></line>
+                              <line x1="8" y1="23" x2="16" y2="23"></line>
+                            </svg>
+                          ) : (
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                              <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                              <line x1="12" y1="19" x2="12" y2="23"></line>
+                              <line x1="8" y1="23" x2="16" y2="23"></line>
+                            </svg>
+                          )}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* SharePoster */}
-      <SharePoster 
-        isOpen={showPoster}
-        onClose={() => setShowPoster(false)}
-        chatAreaRef={chatAreaRef}
-      />
+      <div className={`fixed inset-0 bg-black/50 flex items-center justify-center z-50 ${showPoster ? 'opacity-100 visible' : 'opacity-0 invisible'} transition-opacity duration-300`}>
+        <div className="bg-white rounded-lg max-w-[90vw] max-h-[90vh] overflow-auto p-4">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-[#2D3A3A] text-xl font-medium">分享聊天记录</h2>
+            <button 
+              onClick={() => setShowPoster(false)}
+              className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#F5F7F5]"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+          <div className="flex items-center justify-center">
+            <button className="px-4 py-2 bg-[#84A98C] text-white rounded-md shadow-sm hover:bg-[#6B9080] transition-colors">
+              保存聊天海报
+            </button>
+          </div>
+        </div>
+      </div>
     </>
   );
 };
