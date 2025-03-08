@@ -145,6 +145,14 @@ const KaTeXStyle = () => (
   `}} />
 );
 
+// 添加主题常量
+const theme = {
+  primary: '#84A98C',
+  secondary: '#CCE8C6',
+  text: '#2D3A3A',
+  background: '#F5F7F5',
+};
+
 const ChatUI = () => {
   const [group, setGroup] = useState(groups[1]);
   const [isGroupDiscussionMode, setIsGroupDiscussionMode] = useState(false);
@@ -482,20 +490,20 @@ const ChatUI = () => {
                       </Avatar>
                     )}
                     <div className={message.sender.name === "我" ? "text-right" : ""}>
-                      <div className="text-sm text-[#84A98C] mb-1">{message.sender.name}</div>
-                      <div className={`p-3 rounded-2xl shadow-sm transition-shadow hover:shadow-md chat-message max-w-[85%] ${
+                      <div className="text-sm text-[#84A98C] font-medium mb-1">{message.sender.name}</div>
+                      <div className={`p-3 rounded-2xl shadow-sm transition-shadow hover:shadow-md chat-message inline-block max-w-[85%] min-w-[120px] ${
                         message.sender.name === "我" 
                           ? "bg-[#84A98C] text-white text-left ml-auto rounded-tr-md" 
-                          : "bg-[#CCE8C6] backdrop-blur-sm rounded-tl-md"
+                          : "bg-[#84A98C]/10 text-[#2D3A3A] backdrop-blur-sm rounded-tl-md"
                       }`}>
                         {message.content.length < 30 && !message.content.includes('\n') ? (
-                          <span className="whitespace-nowrap">{message.content.trim()}</span>
+                          <span className="whitespace-pre-wrap break-words">{message.content.trim()}</span>
                         ) : (
                           <ReactMarkdown 
                             remarkPlugins={[remarkGfm, remarkMath]}
                             rehypePlugins={[rehypeKatex]}
                             className={`prose dark:prose-invert max-w-none ${
-                              message.sender.name === "我" ? "text-white [&_*]:text-white" : ""
+                              message.sender.name === "我" ? "text-white [&_*]:text-white" : "text-[#2D3A3A] [&_*]:text-[#2D3A3A]"
                             }
                             [&_h2]:py-1
                             [&_h2]:m-0
@@ -513,15 +521,15 @@ const ChatUI = () => {
                             [&_pre_code]:break-words
                             [&_code]:text-sm
                             [&_code]:text-gray-400
-                            [&_code:not(:where([class~="language-"]))]:text-pink-500
+                            [&_code:not(:where([class~="language-"]))]:text-[#84A98C]
                             [&_code:not(:where([class~="language-"]))]:bg-transparent
-                            [&_a]:text-blue-500
+                            [&_a]:text-[#84A98C]
                             [&_a]:no-underline
                             [&_ul]:my-2
                             [&_ol]:my-2
                             [&_li]:my-1
                             [&_blockquote]:border-l-4
-                            [&_blockquote]:border-gray-300
+                            [&_blockquote]:border-[#84A98C]/30
                             [&_blockquote]:pl-4
                             [&_blockquote]:my-2
                             [&_blockquote]:italic`}
@@ -558,7 +566,7 @@ const ChatUI = () => {
           </div>
 
           {/* Input Area */}
-          <div className="bg-[#CCE8C6] border-t border-[#84A98C] pb-3 pt-3 px-4 md:rounded-b-lg">
+          <div className="bg-[#CCE8C6]/30 border-t border-[#84A98C]/20 pb-3 pt-3 px-4 md:rounded-b-lg">
             <div className="flex gap-2 pb-[env(safe-area-inset-bottom)]">
               {messages.length > 0 && (
                 <TooltipProvider>
@@ -581,7 +589,7 @@ const ChatUI = () => {
               )}
               <Input 
                 placeholder="输入消息..." 
-                className="flex-1 rounded-xl border-[#84A98C] focus:ring-1 focus:ring-[#84A98C] focus:border-[#84A98C] bg-[#F5F7F5]/80 placeholder:text-[#84A98C]/50"
+                className="flex-1 rounded-xl border-[#84A98C] focus:ring-1 focus:ring-[#84A98C] focus:border-[#84A98C] bg-[#F5F7F5]/90 placeholder:text-[#84A98C]/50"
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
