@@ -30,7 +30,7 @@ export const modelConfigs = [
   {
     model: "moonshot-v1-8k",
     apiKey: "MOONSHOT_API_KEY",
-    baseURL: "https://api.moonshot.cn/v1",
+    baseURL: "https://api.moonshot.cn/v1/chat/completions",
     headers: {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer {apiKey}'
@@ -57,7 +57,7 @@ export const modelConfigs = [
   {
     model: "doubao-1.5-lite-32k",
     apiKey: "ARK_API_KEY",
-    baseURL: "https://ark.cn-beijing.volces.com/api/v3",
+    baseURL: "https://ark.cn-beijing.volces.com/api/v3/chat/completions",
     headers: {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer {apiKey}'

@@ -110,49 +110,40 @@ export async function onRequestPost({ env, request }) {
     // 根据不同的模型处理请求
     switch (model) {
       case "moonshot-v1-8k": {
-        // Kimi - 使用 OpenAI 客户端
-        const openai = new OpenAI({
-          apiKey: apiKey,
-          baseURL: modelConfig.baseURL
-        });
+        try {
+          // Kimi - 使用 OpenAI 客户端
+          const openai = new OpenAI({
+            apiKey: apiKey,
+            baseURL: "https://api.moonshot.cn/v1"  // 使用基础 URL
+          });
 
-        const stream = await openai.chat.completions.create({
-          model: "moonshot-v1-8k",
-          messages,
-          temperature: 0.3,
-          stream: true
-        });
+          const completion = await openai.chat.completions.create({
+            model: "moonshot-v1-8k",
+            messages,
+            temperature: 0.3,
+            stream: false
+          });
 
-        const readable = new ReadableStream({
-          async start(controller) {
-            try {
-              for await (const chunk of stream as AsyncIterable<CompletionResponse>) {
-                const content = chunk.choices?.[0]?.delta?.content || '';
-                if (content) {
-                  const trimmedContent = content.replace(/^[\s,，。\.]+/, '');
-                  if (trimmedContent) {
-                    controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ content: trimmedContent })}\n\n`));
-                  }
-                }
-              }
-              controller.close();
-            } catch (error) {
-              console.error('Kimi 流式响应处理失败:', error);
-              controller.error(new Error(`Kimi 流式响应处理失败: ${error.message}`));
+          if (!completion.choices?.[0]?.message?.content) {
+            throw new Error('Kimi API 返回内容为空');
+          }
+
+          return new Response(JSON.stringify({ content: completion.choices[0].message.content }), {
+            headers: { 
+              'Content-Type': 'application/json',
+              'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Methods': 'POST, OPTIONS',
+              'Access-Control-Allow-Headers': 'Content-Type'
             }
-          }
-        });
-
-        return new Response(readable, {
-          headers: {
-            'Content-Type': 'text/event-stream',
-            'Cache-Control': 'no-cache',
-            'Connection': 'keep-alive',
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'POST, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type'
-          }
-        });
+          });
+        } catch (error) {
+          console.error('Kimi API Error:', {
+            error: error.message,
+            model: "moonshot-v1-8k",
+            baseURL: "https://api.moonshot.cn/v1"
+          });
+          throw error;
+        }
       }
 
       case "glm-4-plus": {
@@ -168,7 +159,7 @@ export async function onRequestPost({ env, request }) {
         };
 
         try {
-          const response = await fetch(`${modelConfig.baseURL}/v4/chat/completions`, {
+          const response = await fetch(modelConfig.baseURL, {  // 移除多余的路径拼接
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -243,53 +234,53 @@ export async function onRequestPost({ env, request }) {
       }
 
       case "doubao-1.5-lite-32k": {
-        // 豆包 - 使用 OpenAI 客户端
-        const openai = new OpenAI({
-          apiKey: apiKey,
-          baseURL: modelConfig.baseURL,
-          defaultHeaders: modelConfig.headers ? {
-            'Authorization': `Bearer ${apiKey}`
-          } : undefined
-        });
+        try {
+          // 豆包 - 非流式响应
+          const doubaoRequest = {
+            model: "doubao-1.5-lite-32k",
+            messages,
+            temperature: 0.7,
+            max_tokens: 1000,
+            stream: false
+          };
 
-        const stream = await openai.chat.completions.create({
-          model: "doubao-1.5-lite-32k",
-          messages,
-          temperature: 0.7,
-          max_tokens: 1000,
-          stream: true
-        });
+          const response = await fetch(modelConfig.baseURL, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${apiKey}`
+            },
+            body: JSON.stringify(doubaoRequest)
+          });
 
-        const readable = new ReadableStream({
-          async start(controller) {
-            try {
-              for await (const chunk of stream as AsyncIterable<CompletionResponse>) {
-                const content = chunk.choices?.[0]?.delta?.content || '';
-                if (content) {
-                  const trimmedContent = content.replace(/^[\s,，。\.]+/, '');
-                  if (trimmedContent) {
-                    controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ content: trimmedContent })}\n\n`));
-                  }
-                }
-              }
-              controller.close();
-            } catch (error) {
-              console.error('豆包流式响应处理失败:', error);
-              controller.error(new Error(`豆包流式响应处理失败: ${error.message}`));
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error('豆包 API Error:', {
+              status: response.status,
+              statusText: response.statusText,
+              error: errorText,
+              requestConfig: { ...doubaoRequest, messages: '[已省略]' }
+            });
+            throw new Error(`豆包 API error: ${response.status} ${response.statusText} - ${errorText}`);
+          }
+
+          const result = await response.json();
+          if (!result.choices?.[0]?.message?.content) {
+            throw new Error('豆包 API 返回内容为空');
+          }
+
+          return new Response(JSON.stringify({ content: result.choices[0].message.content }), {
+            headers: { 
+              'Content-Type': 'application/json',
+              'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Methods': 'POST, OPTIONS',
+              'Access-Control-Allow-Headers': 'Content-Type'
             }
-          }
-        });
-
-        return new Response(readable, {
-          headers: {
-            'Content-Type': 'text/event-stream',
-            'Cache-Control': 'no-cache',
-            'Connection': 'keep-alive',
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'POST, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type'
-          }
-        });
+          });
+        } catch (error) {
+          console.error('豆包 API 请求失败:', error);
+          throw error;
+        }
       }
 
       default: {

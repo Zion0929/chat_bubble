@@ -413,12 +413,12 @@ const ChatUI = () => {
       <div className="fixed inset-0 bg-gradient-to-br from-[#CCE8C6] via-[#CCD5AE] to-[#84A98C] flex items-start md:items-center justify-center overflow-hidden">
         <div className="h-full flex flex-col bg-[#F5F7F5] w-full mx-auto relative shadow-xl md:max-w-3xl md:h-[95dvh] md:my-auto md:rounded-lg">
           {/* Header */}
-          <header className="bg-gradient-to-r from-[#CCE8C6] via-[#D8E2DC] to-[#CCD5AE] shadow-sm flex-none md:rounded-t-lg border-b border-[#84A98C]/20">
+          <header className="bg-gradient-to-br from-[#CCE8C6] via-[#D8E2DC] to-[#CCD5AE] shadow-sm flex-none md:rounded-t-lg border-b border-[#84A98C]/20">
             <div className="flex items-center justify-between px-4 py-3">
               {/* 左侧群组信息 */}
               <div className="flex items-center gap-1.5">
                 <div className="relative w-10 h-10">
-                  <div className="w-full h-full overflow-hidden bg-[#F5F7F5] border border-[#84A98C]/30 rounded-lg">
+                  <div className="w-full h-full overflow-hidden bg-[#F5F7F5] border border-[#84A98C]/30 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300">
                     {users.length === 1 ? (
                       <SingleAvatar user={users[0]} />
                     ) : users.length === 2 ? (
@@ -446,11 +446,11 @@ const ChatUI = () => {
                       </div>
                     )}
                   </div>
-                  <div className="absolute -bottom-0.5 -right-0.5 bg-[#52796F] w-3 h-3 border-2 border-[#F5F7F5] rounded-full"></div>
+                  <div className="absolute -bottom-0.5 -right-0.5 bg-[#52796F] w-3 h-3 border-2 border-[#F5F7F5] rounded-full shadow-sm"></div>
                 </div>
                 <div>
-                  <h1 className="font-medium text-[#2D3A3A]">{group.name}</h1>
-                  <p className="text-xs text-[#84A98C]">{users.length} 名成员</p>
+                  <h1 className="font-medium text-[#2D3A3A] hover:text-[#52796F] transition-colors">{group.name}</h1>
+                  <p className="text-xs text-[#84A98C] hover:text-[#52796F] transition-colors">{users.length} 名成员</p>
                 </div>
               </div>
               
@@ -463,7 +463,7 @@ const ChatUI = () => {
                       <TooltipProvider key={user.id}>
                         <Tooltip>
                           <TooltipTrigger>
-                            <Avatar className="w-7 h-7 border-2 border-white">
+                            <Avatar className="w-7 h-7 border-2 border-[#F5F7F5] shadow-sm hover:shadow-md transition-shadow duration-300">
                               {'avatar' in user && user.avatar ? (
                                 <AvatarImage src={user.avatar} />
                               ) : (
@@ -481,7 +481,7 @@ const ChatUI = () => {
                     );
                   })}
                   {users.length > 4 && (
-                    <div className="w-7 h-7 rounded-full bg-[#CCE8C6]/70 flex items-center justify-center text-xs border-2 border-[#F5F7F5] text-[#84A98C] font-medium">
+                    <div className="w-7 h-7 rounded-full bg-[#CCE8C6]/80 flex items-center justify-center text-xs border-2 border-[#F5F7F5] text-[#84A98C] font-medium shadow-sm hover:shadow-md transition-shadow duration-300">
                       +{users.length - 4}
                     </div>
                   )}
@@ -490,7 +490,7 @@ const ChatUI = () => {
                   variant="ghost" 
                   size="icon" 
                   onClick={() => setShowMembers(true)}
-                  className="text-[#84A98C] hover:text-[#52796F] hover:bg-[#CCE8C6]/30"
+                  className="text-[#84A98C] hover:text-[#52796F] hover:bg-[#CCE8C6]/40 transition-colors"
                 >
                   <Settings2 className="w-5 h-5" />
                 </Button>
@@ -518,10 +518,10 @@ const ChatUI = () => {
                     )}
                     <div className={message.sender.name === "我" ? "text-right" : ""}>
                       <div className="text-sm text-[#84A98C] font-medium mb-1">{message.sender.name}</div>
-                      <div className={`p-3 rounded-2xl shadow-sm transition-all duration-200 chat-message inline-block max-w-[85%] min-w-[120px] ${
+                      <div className={`p-3 rounded-2xl shadow-sm transition-all duration-300 chat-message inline-block max-w-[85%] min-w-[120px] ${
                         message.sender.name === "我" 
-                          ? "bg-gradient-to-r from-[#84A98C] to-[#6B9080] text-[#F5F7F5] text-left ml-auto rounded-tr-md hover:shadow-md hover:from-[#6B9080] hover:to-[#84A98C]" 
-                          : "bg-gradient-to-r from-[#CCE8C6]/60 to-[#D8E2DC]/60 text-[#2D3A3A] backdrop-blur-sm rounded-tl-md hover:shadow-md hover:from-[#CCE8C6]/70 hover:to-[#D8E2DC]/70"
+                          ? "bg-gradient-to-br from-[#84A98C] via-[#6B9080] to-[#52796F] text-[#F5F7F5] text-left ml-auto rounded-tr-md hover:shadow-md hover:from-[#6B9080] hover:via-[#52796F] hover:to-[#84A98C]" 
+                          : "bg-gradient-to-br from-[#CCE8C6]/80 via-[#D8E2DC]/80 to-[#CCD5AE]/80 text-[#2D3A3A] backdrop-blur-sm rounded-tl-md hover:shadow-md hover:from-[#CCE8C6]/90 hover:via-[#D8E2DC]/90 hover:to-[#CCD5AE]/90"
                       }`}>
                         {message.content.length < 30 && !message.content.includes('\n') ? (
                           <span className="whitespace-pre-wrap break-words">{message.content.trim()}</span>
@@ -596,7 +596,7 @@ const ChatUI = () => {
           </div>
 
           {/* Input Area */}
-          <div className="bg-gradient-to-r from-[#CCE8C6]/30 via-[#D8E2DC]/30 to-[#CCD5AE]/30 border-t border-[#84A98C]/10 pb-3 pt-3 px-4 md:rounded-b-lg backdrop-blur-sm">
+          <div className="bg-gradient-to-br from-[#CCE8C6]/30 via-[#D8E2DC]/30 to-[#CCD5AE]/30 border-t border-[#84A98C]/20 pb-3 pt-3 px-4 md:rounded-b-lg backdrop-blur-sm">
             <div className="flex gap-2 pb-[env(safe-area-inset-bottom)]">
               {messages.length > 0 && (
                 <TooltipProvider>
@@ -606,7 +606,7 @@ const ChatUI = () => {
                         variant="outline"
                         size="icon"
                         onClick={handleShareChat}
-                        className="px-3 border-[#84A98C]/60 text-[#84A98C] hover:text-[#52796F] rounded-xl hover:bg-[#CCE8C6]/30 hover:border-[#84A98C] transition-colors"
+                        className="px-3 border-[#84A98C]/60 text-[#84A98C] hover:text-[#52796F] rounded-xl hover:bg-[#CCE8C6]/40 hover:border-[#84A98C] transition-colors"
                       >
                         <Share2 className="w-4 h-4" />
                       </Button>
@@ -619,7 +619,7 @@ const ChatUI = () => {
               )}
               <Input 
                 placeholder="输入消息..." 
-                className="flex-1 rounded-xl border-[#84A98C]/40 focus:ring-1 focus:ring-[#84A98C] focus:border-[#84A98C] bg-[#F5F7F5]/90 placeholder:text-[#84A98C]/50 text-[#2D3A3A]"
+                className="flex-1 rounded-xl border-[#84A98C]/40 focus:ring-2 focus:ring-[#84A98C]/30 focus:border-[#84A98C] bg-[#F5F7F5]/90 placeholder:text-[#84A98C]/60 text-[#2D3A3A]"
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
@@ -627,7 +627,7 @@ const ChatUI = () => {
               <Button 
                 onClick={handleSendMessage}
                 disabled={isLoading}
-                className="bg-gradient-to-r from-[#84A98C] to-[#6B9080] hover:from-[#6B9080] hover:to-[#84A98C] rounded-xl px-4 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-gradient-to-br from-[#84A98C] via-[#6B9080] to-[#52796F] hover:from-[#6B9080] hover:via-[#52796F] hover:to-[#84A98C] rounded-xl px-4 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
               >
                 {isLoading ? (
                   <div className="w-4 h-4 animate-spin rounded-full border-2 border-[#F5F7F5] border-t-transparent" />
