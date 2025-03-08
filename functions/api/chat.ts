@@ -111,24 +111,40 @@ export async function onRequestPost({ env, request }) {
     switch (model) {
       case "moonshot-v1-8k": {
         try {
-          // Kimi - 使用 OpenAI 客户端
-          const openai = new OpenAI({
-            apiKey: apiKey,
-            baseURL: "https://api.moonshot.cn/v1"  // 使用基础 URL
-          });
-
-          const completion = await openai.chat.completions.create({
+          const kimiRequest = {
             model: "moonshot-v1-8k",
             messages,
-            temperature: 0.3,
+            temperature: 0.7,
+            max_tokens: 1000,
             stream: false
+          };
+
+          const response = await fetch(modelConfig.baseURL, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${apiKey}`
+            },
+            body: JSON.stringify(kimiRequest)
           });
 
-          if (!completion.choices?.[0]?.message?.content) {
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Kimi API Error:', {
+              status: response.status,
+              statusText: response.statusText,
+              error: errorText,
+              requestConfig: { ...kimiRequest, messages: '[已省略]' }
+            });
+            throw new Error(`Kimi API error: ${response.status} ${response.statusText} - ${errorText}`);
+          }
+
+          const result = await response.json();
+          if (!result.choices?.[0]?.message?.content) {
             throw new Error('Kimi API 返回内容为空');
           }
 
-          return new Response(JSON.stringify({ content: completion.choices[0].message.content }), {
+          return new Response(JSON.stringify({ content: result.choices[0].message.content }), {
             headers: { 
               'Content-Type': 'application/json',
               'Access-Control-Allow-Origin': '*',
@@ -137,11 +153,7 @@ export async function onRequestPost({ env, request }) {
             }
           });
         } catch (error) {
-          console.error('Kimi API Error:', {
-            error: error.message,
-            model: "moonshot-v1-8k",
-            baseURL: "https://api.moonshot.cn/v1"
-          });
+          console.error('Kimi API Error:', error);
           throw error;
         }
       }
@@ -235,7 +247,6 @@ export async function onRequestPost({ env, request }) {
 
       case "doubao-1.5-lite-32k": {
         try {
-          // 豆包 - 非流式响应
           const doubaoRequest = {
             model: "doubao-1.5-lite-32k",
             messages,
@@ -248,7 +259,8 @@ export async function onRequestPost({ env, request }) {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${apiKey}`
+              'Authorization': `Bearer ${apiKey}`,
+              'X-API-Key': apiKey
             },
             body: JSON.stringify(doubaoRequest)
           });
@@ -278,7 +290,7 @@ export async function onRequestPost({ env, request }) {
             }
           });
         } catch (error) {
-          console.error('豆包 API 请求失败:', error);
+          console.error('豆包 API Error:', error);
           throw error;
         }
       }

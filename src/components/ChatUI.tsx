@@ -524,7 +524,7 @@ const ChatUI = () => {
                           : "bg-gradient-to-br from-[#CCE8C6]/80 via-[#D8E2DC]/80 to-[#CCD5AE]/80 text-[#2D3A3A] backdrop-blur-sm rounded-tl-md hover:shadow-md hover:from-[#CCE8C6]/90 hover:via-[#D8E2DC]/90 hover:to-[#CCD5AE]/90"
                       }`}>
                         {message.content.length < 30 && !message.content.includes('\n') ? (
-                          <span className="whitespace-pre-wrap break-words">{message.content.trim()}</span>
+                          <span className="break-words whitespace-normal">{message.content.trim()}</span>
                         ) : (
                           <ReactMarkdown 
                             remarkPlugins={[remarkGfm, remarkMath]}
