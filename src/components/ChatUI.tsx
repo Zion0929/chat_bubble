@@ -248,17 +248,36 @@ const ChatUI = () => {
     }));
     let selectedGroupAiCharacters = groupAiCharacters;
     if (!isGroupDiscussionMode) {
-      const shedulerResponse = await fetch('/api/scheduler', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ message: inputMessage, history: messageHistory, availableAIs: groupAiCharacters })
-      });
-      const shedulerData = await shedulerResponse.json();
-      const selectedAIs = shedulerData.selectedAIs;
-      selectedGroupAiCharacters = selectedAIs.map(ai => groupAiCharacters.find(c => c.id === ai));
+      try {
+        const shedulerResponse = await fetch('/api/scheduler', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ message: inputMessage, history: messageHistory, availableAIs: groupAiCharacters })
+        });
+        
+        if (!shedulerResponse.ok) {
+          throw new Error('调度器请求失败');
+        }
+        
+        const shedulerData = await shedulerResponse.json();
+        const selectedAIs = shedulerData.selectedAIs;
+        selectedGroupAiCharacters = selectedAIs.map(ai => groupAiCharacters.find(c => c.id === ai)).filter(Boolean);
+        
+        // 如果没有选择任何AI，随机选择一个
+        if (selectedGroupAiCharacters.length === 0) {
+          const randomIndex = Math.floor(Math.random() * groupAiCharacters.length);
+          selectedGroupAiCharacters = [groupAiCharacters[randomIndex]];
+        }
+      } catch (error) {
+        console.error('调度器错误:', error);
+        // 出错时随机选择一个AI
+        const randomIndex = Math.floor(Math.random() * groupAiCharacters.length);
+        selectedGroupAiCharacters = [groupAiCharacters[randomIndex]];
+      }
     }
+    
     for (let i = 0; i < selectedGroupAiCharacters.length; i++) {
       //禁言
       if (mutedUsers.includes(selectedGroupAiCharacters[i].id)) {
@@ -305,14 +324,68 @@ const ChatUI = () => {
 
         let buffer = '';
         let completeResponse = ''; // 用于跟踪完整的响应
+        let hasReceivedContent = false;
 
-        while (true) {
-          const { done, value } = await reader.read();
-          
-          if (done) {
-            //如果completeResponse为空，
-            if (completeResponse.trim() === "") {
-            completeResponse = "这个问题难倒我了，下一位。";
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            
+            if (done) {
+              // 如果完成但没有收到任何内容，使用友好的提示
+              if (completeResponse.trim() === "") {
+                completeResponse = "抱歉，我现在无法回应，请稍后再试。";
+                setMessages(prev => {
+                  const newMessages = [...prev];
+                  const aiMessageIndex = newMessages.findIndex(msg => msg.id === aiMessage.id);
+                  if (aiMessageIndex !== -1) {
+                    newMessages[aiMessageIndex] = {
+                      ...newMessages[aiMessageIndex],
+                      content: completeResponse
+                    };
+                  }
+                  return newMessages;
+                });
+              }
+              break;
+            }
+            
+            buffer += decoder.decode(value, { stream: true });
+            
+            // 处理可能的多行数据
+            let newlineIndex;
+            while ((newlineIndex = buffer.indexOf('\n')) >= 0) {
+              const line = buffer.slice(0, newlineIndex);
+              buffer = buffer.slice(newlineIndex + 1);
+              
+              if (line.startsWith('data: ')) {
+                try {
+                  const data = JSON.parse(line.slice(6));
+                  if (data.content) {
+                    hasReceivedContent = true;
+                    completeResponse += data.content;
+                    setMessages(prev => {
+                      const newMessages = [...prev];
+                      const aiMessageIndex = newMessages.findIndex(msg => msg.id === aiMessage.id);
+                      if (aiMessageIndex !== -1) {
+                        newMessages[aiMessageIndex] = {
+                          ...newMessages[aiMessageIndex],
+                          content: completeResponse
+                        };
+                      }
+                      return newMessages;
+                    });
+                  } 
+                } catch (e) {
+                  console.error('解析响应数据失败:', e);
+                }
+              }
+            }
+          }
+        } catch (error) {
+          console.error('读取流失败:', error);
+          // 如果读取流过程中出错，但已经收到了一些内容，继续使用已收到的内容
+          if (!hasReceivedContent) {
+            completeResponse = "抱歉，我现在无法回应，请稍后再试。";
             setMessages(prev => {
               const newMessages = [...prev];
               const aiMessageIndex = newMessages.findIndex(msg => msg.id === aiMessage.id);
@@ -323,40 +396,24 @@ const ChatUI = () => {
                 };
               }
               return newMessages;
-            });}
-            break;
+            });
           }
-          
-          buffer += decoder.decode(value, { stream: true });
-          
-          let newlineIndex;
-          while ((newlineIndex = buffer.indexOf('\n')) >= 0) {
-            const line = buffer.slice(0, newlineIndex);
-            buffer = buffer.slice(newlineIndex + 1);
-            
-            if (line.startsWith('data: ')) {
-              try {
-                const data = JSON.parse(line.slice(6));
-                if (data.content) {
-                  completeResponse += data.content;
-                  setMessages(prev => {
-                    const newMessages = [...prev];
-                    const aiMessageIndex = newMessages.findIndex(msg => msg.id === aiMessage.id);
-                    if (aiMessageIndex !== -1) {
-                      newMessages[aiMessageIndex] = {
-                        ...newMessages[aiMessageIndex],
-                        content: completeResponse
-                      };
-                    }
-                    return newMessages;
-                  });
-                } 
+        }
 
-              } catch (e) {
-                console.error('解析响应数据失败:', e);
-              }
+        // 如果整个过程中没有收到任何内容，使用友好的提示
+        if (!hasReceivedContent) {
+          completeResponse = "抱歉，我现在无法回应，请稍后再试。";
+          setMessages(prev => {
+            const newMessages = [...prev];
+            const aiMessageIndex = newMessages.findIndex(msg => msg.id === aiMessage.id);
+            if (aiMessageIndex !== -1) {
+              newMessages[aiMessageIndex] = {
+                ...newMessages[aiMessageIndex],
+                content: completeResponse
+              };
             }
-          }
+            return newMessages;
+          });
         }
 
         // 将当前AI的回复添加到消息历史中，供下一个AI使用
@@ -367,7 +424,7 @@ const ChatUI = () => {
         });
 
         // 等待一小段时间再开始下一个 AI 的回复
-        if (i < groupAiCharacters.length - 1) {
+        if (i < selectedGroupAiCharacters.length - 1) {
           await new Promise(resolve => setTimeout(resolve, 1000));
         }
 
@@ -375,9 +432,16 @@ const ChatUI = () => {
         console.error("发送消息失败:", error);
         setMessages(prev => prev.map(msg => 
           msg.id === aiMessage.id 
-            ? { ...msg, content: "错误: " + error.message, isError: true }
+            ? { ...msg, content: "抱歉，我现在无法回应，请稍后再试。" }
             : msg
         ));
+        
+        // 即使出错，也添加到历史记录中，避免后续AI无法获取上下文
+        messageHistory.push({
+          role: 'assistant',
+          content: "抱歉，我现在无法回应，请稍后再试。",
+          name: aiMessage.sender.name
+        });
       }
     }
     
@@ -410,15 +474,15 @@ const ChatUI = () => {
   return (
     <>
       <KaTeXStyle />
-      <div className="fixed inset-0 bg-gradient-to-br from-[#CCE8C6] via-[#CCD5AE] to-[#84A98C] flex items-start md:items-center justify-center overflow-hidden">
-        <div className="h-full flex flex-col bg-[#F5F7F5] w-full mx-auto relative shadow-xl md:max-w-3xl md:h-[95dvh] md:my-auto md:rounded-lg">
+      <div className="fixed inset-0 bg-gradient-to-br from-[#CCE8C6] via-[#CCD5AE] to-[#84A98C] flex items-start md:items-center justify-center overflow-hidden" style={{ backgroundImage: 'var(--background-gradient)' }}>
+        <div className="h-full flex flex-col bg-[#F5F7F5] w-full mx-auto relative shadow-xl md:max-w-3xl md:h-[95dvh] md:my-auto md:rounded-lg backdrop-blur-sm border border-[#84A98C]/10" style={{ boxShadow: 'var(--card-shadow)' }}>
           {/* Header */}
-          <header className="bg-gradient-to-br from-[#CCE8C6] via-[#D8E2DC] to-[#CCD5AE] shadow-sm flex-none md:rounded-t-lg border-b border-[#84A98C]/20">
+          <header className="bg-gradient-to-br from-[#CCE8C6] via-[#D8E2DC] to-[#CCD5AE] shadow-sm flex-none md:rounded-t-lg border-b border-[#84A98C]/20" style={{ backgroundImage: 'var(--header-gradient)' }}>
             <div className="flex items-center justify-between px-4 py-3">
               {/* 左侧群组信息 */}
               <div className="flex items-center gap-1.5">
                 <div className="relative w-10 h-10">
-                  <div className="w-full h-full overflow-hidden bg-[#F5F7F5] border border-[#84A98C]/30 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300">
+                  <div className="w-full h-full overflow-hidden bg-[#F5F7F5] border border-[#84A98C]/30 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300" style={{ boxShadow: 'var(--card-shadow)' }}>
                     {users.length === 1 ? (
                       <SingleAvatar user={users[0]} />
                     ) : users.length === 2 ? (
@@ -463,7 +527,7 @@ const ChatUI = () => {
                       <TooltipProvider key={user.id}>
                         <Tooltip>
                           <TooltipTrigger>
-                            <Avatar className="w-7 h-7 border-2 border-[#F5F7F5] shadow-sm hover:shadow-md transition-shadow duration-300">
+                            <Avatar className="w-7 h-7 border-2 border-[#F5F7F5] shadow-sm hover:shadow-md transition-shadow duration-300" style={{ boxShadow: 'var(--card-shadow)' }}>
                               {'avatar' in user && user.avatar ? (
                                 <AvatarImage src={user.avatar} />
                               ) : (
@@ -481,7 +545,7 @@ const ChatUI = () => {
                     );
                   })}
                   {users.length > 4 && (
-                    <div className="w-7 h-7 rounded-full bg-[#CCE8C6]/80 flex items-center justify-center text-xs border-2 border-[#F5F7F5] text-[#84A98C] font-medium shadow-sm hover:shadow-md transition-shadow duration-300">
+                    <div className="w-7 h-7 rounded-full bg-[#CCE8C6]/80 flex items-center justify-center text-xs border-2 border-[#F5F7F5] text-[#84A98C] font-medium shadow-sm hover:shadow-md transition-shadow duration-300" style={{ boxShadow: 'var(--card-shadow)' }}>
                       +{users.length - 4}
                     </div>
                   )}
@@ -506,7 +570,7 @@ const ChatUI = () => {
                   <div key={message.id} 
                     className={`flex items-start gap-2 ${message.sender.name === "我" ? "justify-end" : ""}`}>
                     {message.sender.name !== "我" && (
-                      <Avatar>
+                      <Avatar className="shadow-md" style={{ boxShadow: 'var(--card-shadow)' }}>
                         {'avatar' in message.sender && message.sender.avatar ? (
                           <AvatarImage src={message.sender.avatar} className="w-10 h-10" />
                         ) : (
@@ -520,9 +584,12 @@ const ChatUI = () => {
                       <div className="text-sm text-[#84A98C] font-medium mb-1">{message.sender.name}</div>
                       <div className={`p-3 rounded-2xl shadow-sm transition-all duration-300 chat-message inline-block max-w-[85%] min-w-[120px] ${
                         message.sender.name === "我" 
-                          ? "bg-gradient-to-br from-[#84A98C] via-[#6B9080] to-[#52796F] text-[#F5F7F5] text-left ml-auto rounded-tr-md hover:shadow-md hover:from-[#6B9080] hover:via-[#52796F] hover:to-[#84A98C]" 
-                          : "bg-gradient-to-br from-[#CCE8C6]/80 via-[#D8E2DC]/80 to-[#CCD5AE]/80 text-[#2D3A3A] backdrop-blur-sm rounded-tl-md hover:shadow-md hover:from-[#CCE8C6]/90 hover:via-[#D8E2DC]/90 hover:to-[#CCD5AE]/90"
-                      }`}>
+                          ? "bg-gradient-to-br from-[#84A98C] via-[#6B9080] to-[#52796F] text-[#F5F7F5] text-left ml-auto rounded-tr-md hover:shadow-md" 
+                          : "bg-gradient-to-br from-[#CCE8C6]/80 via-[#D8E2DC]/80 to-[#CCD5AE]/80 text-[#2D3A3A] backdrop-blur-sm rounded-tl-md hover:shadow-md"
+                      }`} style={{ 
+                        backgroundImage: message.sender.name === "我" ? 'var(--message-gradient-user)' : 'var(--message-gradient-ai)',
+                        boxShadow: 'var(--card-shadow)',
+                      }}>
                         {message.content.length < 30 && !message.content.includes('\n') ? (
                           <span className="break-words whitespace-normal">{message.content.trim()}</span>
                         ) : (
@@ -573,7 +640,7 @@ const ChatUI = () => {
                       </div>
                     </div>
                     {message.sender.name === "我" && (
-                      <Avatar>
+                      <Avatar className="shadow-md" style={{ boxShadow: 'var(--card-shadow)' }}>
                        {'avatar' in message.sender && message.sender.avatar ? (
                           <AvatarImage src={message.sender.avatar} className="w-10 h-10" />
                         ) : (
@@ -588,15 +655,15 @@ const ChatUI = () => {
                 <div ref={messagesEndRef} />
                 {/* QR Code */}
                 <div id="qrcode" className="flex flex-col items-center hidden">
-                  <img src="/img/qr.png" alt="QR Code" className="w-24 h-24" />
-                  <p className="text-sm text-[#84A98C] mt-2 font-medium tracking-tight bg-[#F5F7F5]/80 px-3 py-1 rounded-full">扫码体验AI群聊</p>
+                  <img src="/img/qr.png" alt="QR Code" className="w-24 h-24 shadow-md rounded-lg" style={{ boxShadow: 'var(--card-shadow)' }} />
+                  <p className="text-sm text-[#84A98C] mt-2 font-medium tracking-tight bg-[#F5F7F5]/80 px-3 py-1 rounded-full shadow-sm" style={{ boxShadow: 'var(--card-shadow)' }}>扫码体验AI群聊</p>
                 </div>
               </div>
             </ScrollArea>
           </div>
 
           {/* Input Area */}
-          <div className="bg-gradient-to-br from-[#CCE8C6]/30 via-[#D8E2DC]/30 to-[#CCD5AE]/30 border-t border-[#84A98C]/20 pb-3 pt-3 px-4 md:rounded-b-lg backdrop-blur-sm">
+          <div className="bg-gradient-to-br from-[#CCE8C6]/30 via-[#D8E2DC]/30 to-[#CCD5AE]/30 border-t border-[#84A98C]/20 pb-3 pt-3 px-4 md:rounded-b-lg backdrop-blur-sm" style={{ background: 'var(--glass-bg)', backdropFilter: 'blur(10px)', borderTop: '1px solid var(--glass-border)' }}>
             <div className="flex gap-2 pb-[env(safe-area-inset-bottom)]">
               {messages.length > 0 && (
                 <TooltipProvider>
@@ -606,7 +673,8 @@ const ChatUI = () => {
                         variant="outline"
                         size="icon"
                         onClick={handleShareChat}
-                        className="px-3 border-[#84A98C]/60 text-[#84A98C] hover:text-[#52796F] rounded-xl hover:bg-[#CCE8C6]/40 hover:border-[#84A98C] transition-colors"
+                        className="px-3 border-[#84A98C]/60 text-[#84A98C] hover:text-[#52796F] rounded-xl hover:bg-[#CCE8C6]/40 hover:border-[#84A98C] transition-colors shadow-sm"
+                        style={{ boxShadow: 'var(--card-shadow)' }}
                       >
                         <Share2 className="w-4 h-4" />
                       </Button>
@@ -619,7 +687,8 @@ const ChatUI = () => {
               )}
               <Input 
                 placeholder="输入消息..." 
-                className="flex-1 rounded-xl border-[#84A98C]/40 focus:ring-2 focus:ring-[#84A98C]/30 focus:border-[#84A98C] bg-[#F5F7F5]/90 placeholder:text-[#84A98C]/60 text-[#2D3A3A]"
+                className="flex-1 rounded-xl border-[#84A98C]/40 focus:ring-2 focus:ring-[#84A98C]/30 focus:border-[#84A98C] bg-[#F5F7F5]/90 placeholder:text-[#84A98C]/60 text-[#2D3A3A] shadow-sm"
+                style={{ boxShadow: 'var(--card-shadow)' }}
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
@@ -628,6 +697,14 @@ const ChatUI = () => {
                 onClick={handleSendMessage}
                 disabled={isLoading}
                 className="bg-gradient-to-br from-[#84A98C] via-[#6B9080] to-[#52796F] hover:from-[#6B9080] hover:via-[#52796F] hover:to-[#84A98C] rounded-xl px-4 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
+                style={{ 
+                  backgroundImage: 'var(--button-gradient)', 
+                  boxShadow: 'var(--card-shadow)',
+                  '&:hover': {
+                    backgroundImage: 'var(--button-hover-gradient)',
+                    boxShadow: 'var(--hover-shadow)'
+                  }
+                }}
               >
                 {isLoading ? (
                   <div className="w-4 h-4 animate-spin rounded-full border-2 border-[#F5F7F5] border-t-transparent" />

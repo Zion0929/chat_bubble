@@ -36,12 +36,12 @@ export const MembersManagement = ({
 }: MembersManagementProps) => {
   return (
     <Sheet open={showMembers} onOpenChange={setShowMembers}>
-      <SheetContent side="right" className="w-[300px] sm:w-[400px] bg-white">
+      <SheetContent side="right" className="w-[300px] sm:w-[400px] bg-white backdrop-blur-md border-l border-[#84A98C]/20" style={{ background: 'var(--glass-bg)', backdropFilter: 'blur(12px)', borderLeft: '1px solid var(--glass-border)' }}>
         <SheetHeader>
-          <SheetTitle className="text-gray-900">群聊配置</SheetTitle>
+          <SheetTitle className="text-gray-900 text-xl font-medium">群聊配置</SheetTitle>
         </SheetHeader>
         <div className="mt-4">
-          <div className="mb-6 p-4 bg-gradient-to-br from-[#CCE8C6]/30 via-[#D8E2DC]/30 to-[#CCD5AE]/30 rounded-lg border border-[#84A98C]/20">
+          <div className="mb-6 p-4 bg-gradient-to-br from-[#CCE8C6]/30 via-[#D8E2DC]/30 to-[#CCD5AE]/30 rounded-lg border border-[#84A98C]/20 shadow-sm" style={{ boxShadow: 'var(--card-shadow)' }}>
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-sm text-[#2D3A3A] font-medium">全员讨论模式</div>
@@ -56,7 +56,7 @@ export const MembersManagement = ({
           </div>
           <div className="flex justify-between items-center mb-4">
             <span className="text-sm text-gray-500">当前成员（{users.length}）</span>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" className="border-[#84A98C]/40 text-[#84A98C] hover:bg-[#CCE8C6]/20 hover:text-[#52796F] shadow-sm" style={{ boxShadow: 'var(--card-shadow)' }}>
               <UserPlus className="w-4 h-4 mr-2" />
               添加成员
             </Button>
@@ -64,9 +64,9 @@ export const MembersManagement = ({
           <ScrollArea className="h-[calc(100vh-150px)]">
             <div className="space-y-2 pr-4">
               {users.map((user) => (
-                <div key={user.id} className="flex items-center justify-between p-2 hover:bg-gray-100 rounded-lg">
+                <div key={user.id} className="flex items-center justify-between p-2 hover:bg-[#CCE8C6]/20 rounded-lg transition-colors duration-200">
                   <div className="flex items-center gap-3">
-                    <Avatar>
+                    <Avatar className="shadow-sm" style={{ boxShadow: 'var(--card-shadow)' }}>
                       {'avatar' in user && user.avatar ? (
                         <AvatarImage src={user.avatar} className="w-10 h-10" />
                       ) : (
@@ -76,7 +76,7 @@ export const MembersManagement = ({
                       )}
                     </Avatar>
                     <div className="flex flex-col">
-                      <span className="text-gray-900">{user.name}</span>
+                      <span className="text-gray-900 font-medium">{user.name}</span>
                       {mutedUsers.includes(user.id as string) && (
                         <span className="text-xs text-red-500">已禁言</span>
                       )}
@@ -91,15 +91,16 @@ export const MembersManagement = ({
                               variant="ghost"
                               size="icon"
                               onClick={() => handleToggleMute(user.id as string)}
+                              className={mutedUsers.includes(user.id as string) ? "text-red-500 hover:text-red-600 hover:bg-red-100/20" : "text-green-500 hover:text-green-600 hover:bg-green-100/20"}
                             >
                               {mutedUsers.includes(user.id as string) ? (
-                                <MicOff className="w-4 h-4 text-red-500" />
+                                <MicOff className="w-4 h-4" />
                               ) : (
-                                <Mic className="w-4 h-4 text-green-500" />
+                                <Mic className="w-4 h-4" />
                               )}
                             </Button>
                           </TooltipTrigger>
-                          <TooltipContent>
+                          <TooltipContent className="bg-white border border-[#84A98C]/20 shadow-md" style={{ boxShadow: 'var(--card-shadow)' }}>
                             {mutedUsers.includes(user.id as string) ? '取消禁言' : '禁言'}
                           </TooltipContent>
                         </Tooltip>

@@ -3,7 +3,7 @@
 
 // 添加 OpenAI 类型声明
 declare module 'openai' {
-  class OpenAIApi {
+  class OpenAI {
     constructor(config: { apiKey: string; baseURL?: string; defaultHeaders?: Record<string, string> });
     chat: {
       completions: {
@@ -11,7 +11,7 @@ declare module 'openai' {
       };
     };
   }
-  export default OpenAIApi;
+  export default OpenAI;
 }
 
 import OpenAI from 'openai';
@@ -94,7 +94,7 @@ export async function onRequestPost({ env, request }) {
     const systemPrompt = custom_prompt + "\n 注意重要：1、你在群里叫" + aiName + "，你的回复中不要添加任何前缀，直接输出内容；2、如果用户提出玩游戏，比如成语接龙等，严格按照游戏规则，不要说一大堆，要简短精炼; 3、不要重复别人的话！4、不要在回复前添加自己的名字或其他人的名字作为前缀！"
 
     // 构建完整的消息历史
-    const messages: Message[] = [
+    const messages = [
       { role: "system", content: systemPrompt },
       ...history.map(msg => ({
         role: msg.role as "system" | "user" | "assistant",
@@ -116,7 +116,7 @@ export async function onRequestPost({ env, request }) {
             messages,
             temperature: 0.7,
             max_tokens: 1000,
-            stream: false
+            stream: true  // 修改为流式响应
           };
 
           const response = await fetch(modelConfig.baseURL, {
@@ -136,25 +136,185 @@ export async function onRequestPost({ env, request }) {
               error: errorText,
               requestConfig: { ...kimiRequest, messages: '[已省略]' }
             });
-            throw new Error(`Kimi API error: ${response.status} ${response.statusText} - ${errorText}`);
+            
+            // 返回一个友好的错误消息，而不是抛出错误
+            const readable = new ReadableStream({
+              start(controller) {
+                const content = "抱歉，我现在无法回应，请稍后再试。";
+                controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ content })}\n\n`));
+                controller.close();
+              }
+            });
+            
+            return new Response(readable, {
+              headers: {
+                'Content-Type': 'text/event-stream',
+                'Cache-Control': 'no-cache',
+                'Connection': 'keep-alive'
+              }
+            });
           }
 
-          const result = await response.json();
-          if (!result.choices?.[0]?.message?.content) {
-            throw new Error('Kimi API 返回内容为空');
-          }
+          // 创建 ReadableStream 处理流式响应
+          const readable = new ReadableStream({
+            async start(controller) {
+              try {
+                const reader = response.body.getReader();
+                let buffer = '';
+                let hasContent = false;
+                let isFirstChunk = true;
 
-          return new Response(JSON.stringify({ content: result.choices[0].message.content }), {
-            headers: { 
-              'Content-Type': 'application/json',
-              'Access-Control-Allow-Origin': '*',
-              'Access-Control-Allow-Methods': 'POST, OPTIONS',
-              'Access-Control-Allow-Headers': 'Content-Type'
+                while (true) {
+                  const { done, value } = await reader.read();
+                  if (done) {
+                    if (buffer) {
+                      try {
+                        // 尝试解析最后的缓冲区
+                        if (buffer.startsWith('data: ')) {
+                          const jsonStr = buffer.slice(6);
+                          try {
+                            const jsonData = JSON.parse(jsonStr);
+                            if (jsonData.choices?.[0]?.delta?.content) {
+                              const content = jsonData.choices[0].delta.content;
+                              controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ content })}\n\n`));
+                              hasContent = true;
+                            } else if (jsonData.choices?.[0]?.message?.content) {
+                              const content = jsonData.choices[0].message.content;
+                              controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ content })}\n\n`));
+                              hasContent = true;
+                            }
+                          } catch (e) {
+                            console.error('解析JSON字符串失败:', e);
+                          }
+                        } else {
+                          try {
+                            const jsonData = JSON.parse(buffer);
+                            if (jsonData.choices?.[0]?.delta?.content) {
+                              const content = jsonData.choices[0].delta.content;
+                              controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ content })}\n\n`));
+                              hasContent = true;
+                            } else if (jsonData.choices?.[0]?.message?.content) {
+                              const content = jsonData.choices[0].message.content;
+                              controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ content })}\n\n`));
+                              hasContent = true;
+                            }
+                          } catch (e) {
+                            console.error('解析最终缓冲区失败:', e);
+                          }
+                        }
+                      } catch (e) {
+                        console.error('解析最终缓冲区失败:', e);
+                      }
+                    }
+                    
+                    // 如果没有收到任何内容，发送一个友好的消息
+                    if (!hasContent) {
+                      const content = "抱歉，我现在无法回应，请稍后再试。";
+                      controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ content })}\n\n`));
+                    }
+                    
+                    controller.close();
+                    break;
+                  }
+
+                  const chunk = new TextDecoder().decode(value);
+                  buffer += chunk;
+                  
+                  // 处理可能的多行数据
+                  const lines = buffer.split('\n');
+                  buffer = '';
+                  
+                  for (let i = 0; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    if (!line) continue;
+                    
+                    if (line.startsWith('data: ')) {
+                      try {
+                        const jsonStr = line.slice(6);
+                        if (jsonStr === '[DONE]') continue;
+                        
+                        try {
+                          const jsonData = JSON.parse(jsonStr);
+                          if (jsonData.choices?.[0]?.delta?.content) {
+                            let content = jsonData.choices[0].delta.content;
+                            // 如果是第一个内容块，移除开头的标点符号
+                            if (isFirstChunk && content) {
+                              content = content.replace(/^[\s,，。\.、:：;；!！?？]+/, '');
+                              isFirstChunk = false;
+                            }
+                            if (content) {
+                              controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ content })}\n\n`));
+                              hasContent = true;
+                            }
+                          } else if (jsonData.choices?.[0]?.message?.content) {
+                            let content = jsonData.choices[0].message.content;
+                            // 如果是第一个内容块，移除开头的标点符号
+                            if (isFirstChunk && content) {
+                              content = content.replace(/^[\s,，。\.、:：;；!！?？]+/, '');
+                              isFirstChunk = false;
+                            }
+                            if (content) {
+                              controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ content })}\n\n`));
+                              hasContent = true;
+                            }
+                          }
+                        } catch (e) {
+                          console.error('解析JSON字符串失败:', e);
+                          // 如果是最后一行，保存到buffer中
+                          if (i === lines.length - 1) {
+                            buffer = line;
+                          }
+                        }
+                      } catch (e) {
+                        console.error('处理数据行失败:', e);
+                        // 如果是最后一行，保存到buffer中
+                        if (i === lines.length - 1) {
+                          buffer = line;
+                        }
+                      }
+                    } else {
+                      // 如果是最后一行，保存到buffer中
+                      if (i === lines.length - 1) {
+                        buffer = line;
+                      }
+                    }
+                  }
+                }
+              } catch (error) {
+                console.error('Kimi流式响应处理失败:', error);
+                const content = "抱歉，我现在无法回应，请稍后再试。";
+                controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ content })}\n\n`));
+                controller.close();
+              }
+            }
+          });
+
+          return new Response(readable, {
+            headers: {
+              'Content-Type': 'text/event-stream',
+              'Cache-Control': 'no-cache',
+              'Connection': 'keep-alive'
             }
           });
         } catch (error) {
           console.error('Kimi API Error:', error);
-          throw error;
+          
+          // 返回一个友好的错误消息，而不是抛出错误
+          const readable = new ReadableStream({
+            start(controller) {
+              const content = "抱歉，我现在无法回应，请稍后再试。";
+              controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ content })}\n\n`));
+              controller.close();
+            }
+          });
+          
+          return new Response(readable, {
+            headers: {
+              'Content-Type': 'text/event-stream',
+              'Cache-Control': 'no-cache',
+              'Connection': 'keep-alive'
+            }
+          });
         }
       }
 
@@ -171,7 +331,7 @@ export async function onRequestPost({ env, request }) {
         };
 
         try {
-          const response = await fetch(modelConfig.baseURL, {  // 移除多余的路径拼接
+          const response = await fetch(modelConfig.baseURL, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -188,7 +348,23 @@ export async function onRequestPost({ env, request }) {
               error: errorText,
               requestConfig: { ...glmRequest, messages: '[已省略]' }
             });
-            throw new Error(`智谱 API error: ${response.status} ${response.statusText} - ${errorText}`);
+            
+            // 返回一个友好的错误消息，而不是抛出错误
+            const readable = new ReadableStream({
+              start(controller) {
+                const content = "抱歉，我现在无法回应，请稍后再试。";
+                controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ content })}\n\n`));
+                controller.close();
+              }
+            });
+            
+            return new Response(readable, {
+              headers: {
+                'Content-Type': 'text/event-stream',
+                'Cache-Control': 'no-cache',
+                'Connection': 'keep-alive'
+              }
+            });
           }
 
           // 创建 ReadableStream 处理流式响应
@@ -197,6 +373,9 @@ export async function onRequestPost({ env, request }) {
               try {
                 const reader = response.body.getReader();
                 let buffer = '';
+                let hasContent = false;
+                let fullContent = '';
+                let isFirstChunk = true;
 
                 while (true) {
                   const { done, value } = await reader.read();
@@ -204,15 +383,30 @@ export async function onRequestPost({ env, request }) {
                     if (buffer) {
                       const content = parseSSEResponse(new TextEncoder().encode(buffer));
                       if (content) {
-                        controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ content })}\n\n`));
+                        // 移除开头的逗号和空白
+                        const cleanContent = content.replace(/^[\s,，。\.]+/, '');
+                        if (cleanContent) {
+                          controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ content: cleanContent })}\n\n`));
+                          hasContent = true;
+                          fullContent += cleanContent;
+                        }
                       }
                     }
+                    
+                    // 如果没有收到任何内容，发送一个友好的消息
+                    if (!hasContent) {
+                      const content = "抱歉，我现在无法回应，请稍后再试。";
+                      controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ content })}\n\n`));
+                    }
+                    
                     controller.close();
                     break;
                   }
 
                   const chunk = new TextDecoder().decode(value);
                   buffer += chunk;
+                  
+                  // 尝试按行分割处理
                   const lines = buffer.split('\n\n');
                   buffer = lines.pop() || '';
 
@@ -220,14 +414,28 @@ export async function onRequestPost({ env, request }) {
                     if (line.trim()) {
                       const content = parseSSEResponse(new TextEncoder().encode(line));
                       if (content) {
-                        controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ content })}\n\n`));
+                        // 移除开头的逗号和空白
+                        const cleanContent = content.replace(/^[\s,，。\.]+/, '');
+                        if (cleanContent) {
+                          // 如果是第一个内容块，确保不以标点符号开头
+                          const finalContent = isFirstChunk ? cleanContent.replace(/^[\s,，。\.、:：;；!！?？]+/, '') : cleanContent;
+                          
+                          if (finalContent) {
+                            controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ content: finalContent })}\n\n`));
+                            hasContent = true;
+                            fullContent += finalContent;
+                            isFirstChunk = false;
+                          }
+                        }
                       }
                     }
                   }
                 }
               } catch (error) {
                 console.error('智谱流式响应处理失败:', error);
-                controller.error(new Error(`智谱流式响应处理失败: ${error.message}`));
+                const content = "抱歉，我现在无法回应，请稍后再试。";
+                controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ content })}\n\n`));
+                controller.close();
               }
             }
           });
@@ -241,7 +449,23 @@ export async function onRequestPost({ env, request }) {
           });
         } catch (error) {
           console.error('智谱 API 请求失败:', error);
-          throw error;
+          
+          // 返回一个友好的错误消息，而不是抛出错误
+          const readable = new ReadableStream({
+            start(controller) {
+              const content = "抱歉，我现在无法回应，请稍后再试。";
+              controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ content })}\n\n`));
+              controller.close();
+            }
+          });
+          
+          return new Response(readable, {
+            headers: {
+              'Content-Type': 'text/event-stream',
+              'Cache-Control': 'no-cache',
+              'Connection': 'keep-alive'
+            }
+          });
         }
       }
 
@@ -252,9 +476,10 @@ export async function onRequestPost({ env, request }) {
             messages,
             temperature: 0.7,
             max_tokens: 1000,
-            stream: false
+            stream: true  // 修改为流式响应
           };
 
+          // 修复豆包API的baseURL和请求头
           const response = await fetch(modelConfig.baseURL, {
             method: 'POST',
             headers: {
@@ -273,95 +498,209 @@ export async function onRequestPost({ env, request }) {
               error: errorText,
               requestConfig: { ...doubaoRequest, messages: '[已省略]' }
             });
-            throw new Error(`豆包 API error: ${response.status} ${response.statusText} - ${errorText}`);
+            
+            // 返回一个友好的错误消息，而不是抛出错误
+            const readable = new ReadableStream({
+              start(controller) {
+                const content = "抱歉，我现在无法回应，请稍后再试。";
+                controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ content })}\n\n`));
+                controller.close();
+              }
+            });
+            
+            return new Response(readable, {
+              headers: {
+                'Content-Type': 'text/event-stream',
+                'Cache-Control': 'no-cache',
+                'Connection': 'keep-alive'
+              }
+            });
           }
 
-          const result = await response.json();
-          if (!result.choices?.[0]?.message?.content) {
-            throw new Error('豆包 API 返回内容为空');
-          }
+          // 创建 ReadableStream 处理流式响应
+          const readable = new ReadableStream({
+            async start(controller) {
+              try {
+                const reader = response.body.getReader();
+                let buffer = '';
+                let hasContent = false;
 
-          return new Response(JSON.stringify({ content: result.choices[0].message.content }), {
-            headers: { 
-              'Content-Type': 'application/json',
-              'Access-Control-Allow-Origin': '*',
-              'Access-Control-Allow-Methods': 'POST, OPTIONS',
-              'Access-Control-Allow-Headers': 'Content-Type'
+                while (true) {
+                  const { done, value } = await reader.read();
+                  if (done) {
+                    if (buffer) {
+                      try {
+                        const jsonData = JSON.parse(buffer);
+                        if (jsonData.choices?.[0]?.message?.content) {
+                          controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ content: jsonData.choices[0].message.content })}\n\n`));
+                          hasContent = true;
+                        }
+                      } catch (e) {
+                        console.error('解析最终缓冲区失败:', e);
+                      }
+                    }
+                    
+                    // 如果没有收到任何内容，发送一个友好的消息
+                    if (!hasContent) {
+                      const content = "抱歉，我现在无法回应，请稍后再试。";
+                      controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ content })}\n\n`));
+                    }
+                    
+                    controller.close();
+                    break;
+                  }
+
+                  const chunk = new TextDecoder().decode(value);
+                  buffer += chunk;
+                  
+                  // 尝试解析完整的JSON对象
+                  try {
+                    const jsonData = JSON.parse(buffer);
+                    if (jsonData.choices?.[0]?.delta?.content) {
+                      const content = jsonData.choices[0].delta.content;
+                      controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ content })}\n\n`));
+                      buffer = '';
+                      hasContent = true;
+                    } else if (jsonData.choices?.[0]?.message?.content) {
+                      const content = jsonData.choices[0].message.content;
+                      controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ content })}\n\n`));
+                      buffer = '';
+                      hasContent = true;
+                    }
+                  } catch (e) {
+                    // 不完整的JSON，继续累积
+                  }
+                }
+              } catch (error) {
+                console.error('豆包流式响应处理失败:', error);
+                const content = "抱歉，我现在无法回应，请稍后再试。";
+                controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ content })}\n\n`));
+                controller.close();
+              }
+            }
+          });
+
+          return new Response(readable, {
+            headers: {
+              'Content-Type': 'text/event-stream',
+              'Cache-Control': 'no-cache',
+              'Connection': 'keep-alive'
             }
           });
         } catch (error) {
           console.error('豆包 API Error:', error);
-          throw error;
+          
+          // 返回一个友好的错误消息，而不是抛出错误
+          const readable = new ReadableStream({
+            start(controller) {
+              const content = "抱歉，我现在无法回应，请稍后再试。";
+              controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ content })}\n\n`));
+              controller.close();
+            }
+          });
+          
+          return new Response(readable, {
+            headers: {
+              'Content-Type': 'text/event-stream',
+              'Cache-Control': 'no-cache',
+              'Connection': 'keep-alive'
+            }
+          });
         }
       }
 
       default: {
         // 其他模型使用 OpenAI 客户端
-        const openai = new OpenAI({
-          apiKey: apiKey,
-          baseURL: modelConfig.baseURL,
-          defaultHeaders: (('headers' in modelConfig && modelConfig.headers) ? {
-            [Object.keys(modelConfig.headers)[0]]: modelConfig.headers[Object.keys(modelConfig.headers)[0]].replace('{apiKey}', apiKey)
-          } : undefined),
-        });
+        try {
+          const openai = new OpenAI({
+            apiKey: apiKey,
+            baseURL: modelConfig.baseURL,
+            defaultHeaders: (('headers' in modelConfig && modelConfig.headers) ? {
+              [Object.keys(modelConfig.headers)[0]]: modelConfig.headers[Object.keys(modelConfig.headers)[0]].replace('{apiKey}', apiKey)
+            } : undefined),
+          });
 
-        const stream = await openai.chat.completions.create({
-          model,
-          messages,
-          temperature: 0.7,
-          max_tokens: 1000,
-          stream: true
-        });
+          const stream = await openai.chat.completions.create({
+            model,
+            messages,
+            temperature: 0.7,
+            max_tokens: 1000,
+            stream: true
+          });
 
-        const readable = new ReadableStream({
-          async start(controller) {
-            try {
-              for await (const chunk of stream as AsyncIterable<CompletionResponse>) {
-                const content = chunk.choices?.[0]?.delta?.content || '';
-                if (content) {
-                  const trimmedContent = content.replace(/^[\s,，。\.]+/, '');
-                  if (trimmedContent) {
-                    controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ content: trimmedContent })}\n\n`));
+          const readable = new ReadableStream({
+            async start(controller) {
+              try {
+                let hasContent = false;
+                
+                for await (const chunk of stream as AsyncIterable<CompletionResponse>) {
+                  const content = chunk.choices?.[0]?.delta?.content || '';
+                  if (content) {
+                    const trimmedContent = content.replace(/^[\s,，。\.]+/, '');
+                    if (trimmedContent) {
+                      controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ content: trimmedContent })}\n\n`));
+                      hasContent = true;
+                    }
                   }
                 }
+                
+                // 如果没有收到任何内容，发送一个友好的消息
+                if (!hasContent) {
+                  const content = "抱歉，我现在无法回应，请稍后再试。";
+                  controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ content })}\n\n`));
+                }
+                
+                controller.close();
+              } catch (error) {
+                console.error('Stream Error:', error);
+                const content = "抱歉，我现在无法回应，请稍后再试。";
+                controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ content })}\n\n`));
+                controller.close();
               }
-              controller.close();
-            } catch (error) {
-              console.error('Stream Error:', error);
-              controller.error(new Error(`Stream processing failed: ${error.message}`));
-            }
-          },
-        });
+            },
+          });
 
-        return new Response(readable, {
-          headers: {
-            'Content-Type': 'text/event-stream',
-            'Cache-Control': 'no-cache',
-            'Connection': 'keep-alive',
-          },
-        });
+          return new Response(readable, {
+            headers: {
+              'Content-Type': 'text/event-stream',
+              'Cache-Control': 'no-cache',
+              'Connection': 'keep-alive',
+            },
+          });
+        } catch (error) {
+          console.error('OpenAI API Error:', error);
+          
+          // 返回一个友好的错误消息，而不是抛出错误
+          const readable = new ReadableStream({
+            start(controller) {
+              const content = "抱歉，我现在无法回应，请稍后再试。";
+              controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ content })}\n\n`));
+              controller.close();
+            }
+          });
+          
+          return new Response(readable, {
+            headers: {
+              'Content-Type': 'text/event-stream',
+              'Cache-Control': 'no-cache',
+              'Connection': 'keep-alive'
+            }
+          });
+        }
       }
     }
   } catch (error) {
     console.error('API Error:', error);
     
-    // 构建更详细的错误响应
+    // 返回一个友好的错误消息，而不是错误详情
     const errorResponse = {
-      error: error instanceof Error ? error.message : 'Unknown error occurred',
-      detail: String(error),
-      stack: error instanceof Error ? error.stack : undefined,
-      timestamp: new Date().toISOString(),
-      model: currentModel,
-      apiKeyName: currentModelConfig?.apiKey,
-      baseURL: currentModelConfig?.baseURL,
-      hasApiKey: !!currentApiKey,
+      content: "抱歉，我现在无法回应，请稍后再试。"
     };
 
     return new Response(JSON.stringify(errorResponse), {
-      status: 500,
+      status: 200, // 返回200而不是500，避免前端显示错误
       headers: { 
         'Content-Type': 'application/json',
-        'X-Error-Type': error instanceof Error ? error.name : 'UnknownError',
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'POST, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type'

@@ -1,5 +1,5 @@
 :root {
-  /* 主色调 - 青墨韵色系 */
+  /* 主色调 - 更现代的青墨韵色系 */
   --primary: 146 24% 60%;  /* #84A98C - 深青色 */
   --primary-foreground: 0 0% 100%;  /* #FFFFFF */
 
@@ -31,6 +31,19 @@
   --chart-2: 77 10% 81%;   /* #CCD5AE - 青草 */
   --chart-3: 180 6% 85%;   /* #D8E2DC - 青灰 */
   --chart-4: 146 24% 60%;  /* #84A98C - 深青 */
+  
+  /* 新增 - 现代UI元素 */
+  --glass-bg: rgba(255, 255, 255, 0.25);
+  --glass-border: rgba(255, 255, 255, 0.18);
+  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+  --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --hover-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --button-gradient: linear-gradient(135deg, #84A98C 0%, #52796F 100%);
+  --button-hover-gradient: linear-gradient(135deg, #6B9080 0%, #84A98C 100%);
+  --message-gradient-user: linear-gradient(135deg, #84A98C 0%, #52796F 100%);
+  --message-gradient-ai: linear-gradient(135deg, rgba(204, 232, 198, 0.8) 0%, rgba(204, 213, 174, 0.8) 100%);
+  --header-gradient: linear-gradient(135deg, #CCE8C6 0%, #CCD5AE 100%);
+  --background-gradient: linear-gradient(135deg, #CCE8C6 0%, #CCD5AE 50%, #84A98C 100%);
 }
 
 .dark {
@@ -56,4 +69,17 @@
   --border: 146 24% 60%;  /* #84A98C */
   --input: 146 24% 60%;  /* #84A98C */
   --ring: 146 24% 60%;  /* #84A98C */
+  
+  /* 暗色模式 - 现代UI元素 */
+  --glass-bg: rgba(20, 30, 25, 0.75);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  --hover-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+  --button-gradient: linear-gradient(135deg, #84A98C 0%, #52796F 100%);
+  --button-hover-gradient: linear-gradient(135deg, #6B9080 0%, #84A98C 100%);
+  --message-gradient-user: linear-gradient(135deg, #52796F 0%, #2D3A3A 100%);
+  --message-gradient-ai: linear-gradient(135deg, rgba(50, 70, 60, 0.8) 0%, rgba(40, 55, 45, 0.8) 100%);
+  --header-gradient: linear-gradient(135deg, #2D3A3A 0%, #52796F 100%);
+  --background-gradient: linear-gradient(135deg, #2D3A3A 0%, #52796F 50%, #84A98C 100%);
 } 
