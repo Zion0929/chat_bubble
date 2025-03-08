@@ -2,24 +2,37 @@
 export const modelConfigs = [
   {
     model: "qwen-plus",
-    apiKey: "DASHSCOPE_API_KEY", // 这里存储环境变量的 key 名称
-    baseURL: "https://dashscope.aliyuncs.com/compatible-mode/v1"
+    apiKey: "DASHSCOPE_API_KEY",
+    baseURL: "https://dashscope.aliyuncs.com/compatible-mode/v1",
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer {apiKey}'
+    }
   },
   {
     model: "deepseek-v3",
     apiKey: "DEEPSEEK_API_KEY",
-    baseURL: "https://api.deepseek.com"
+    baseURL: "https://api.deepseek.com/v1/chat/completions",
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer {apiKey}'
+    }
   },
   {
     model: "step-1-8k",
     apiKey: "STEP_API_KEY",
-    baseURL: "https://api.stepfun.com/v1"
+    baseURL: "https://api.stepfun.com/v1",
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer {apiKey}'
+    }
   },
   {
     model: "moonshot-v1-8k",
     apiKey: "MOONSHOT_API_KEY",
     baseURL: "https://api.moonshot.cn/v1",
     headers: {
+      'Content-Type': 'application/json',
       'Authorization': 'Bearer {apiKey}'
     }
   },
@@ -28,20 +41,26 @@ export const modelConfigs = [
     apiKey: "GLM_API_KEY",
     baseURL: "https://open.bigmodel.cn/api/paas/v4/chat/completions",
     headers: {
-      'Authorization': '{apiKey}'
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer {apiKey}'
     }
   },
   {
-    model: "qwen-turbo",//调度模型
-    apiKey: "DASHSCOPE_API_KEY", // 这里存储环境变量的 key 名称
-    baseURL: "https://dashscope.aliyuncs.com/compatible-mode/v1"
+    model: "qwen-turbo",
+    apiKey: "DASHSCOPE_API_KEY",
+    baseURL: "https://dashscope.aliyuncs.com/compatible-mode/v1",
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer {apiKey}'
+    }
   },
   {
-    model: "doubao-1.5-lite-32k",  // 豆包的 Model ID
-    apiKey: "ARK_API_KEY",  // 使用方舟的 API Key
-    baseURL: "https://api.ark.bytedance.com/v1",  // 方舟的 API 基础 URL
+    model: "doubao-1.5-lite-32k",
+    apiKey: "ARK_API_KEY",
+    baseURL: "https://ark.cn-beijing.volces.com/api/v3",
     headers: {
-      'X-API-KEY': '{apiKey}'
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer {apiKey}'
     }
   },
 ] as const;

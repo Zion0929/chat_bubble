@@ -29,9 +29,39 @@ import html2canvas from 'html2canvas';
 import { SharePoster } from '@/components/SharePoster';
 import { MembersManagement } from '@/components/MembersManagement';
 
-// 使用本地头像数据，避免外部依赖
+// 更新主题常量
+const theme = {
+  primary: '#84A98C',      // 墨绿 - 主色
+  secondary: '#CCE8C6',    // 浅嫩绿 - 次要色
+  tertiary: '#CCD5AE',     // 青草绿 - 第三色
+  quaternary: '#D8E2DC',   // 淡青灰 - 第四色
+  text: {
+    primary: '#2D3A3A',    // 深色文本
+    secondary: '#84A98C',  // 绿色文本
+    light: '#F5F7F5',     // 浅色文本
+  },
+  background: {
+    primary: '#F5F7F5',    // 主背景
+    secondary: '#CCE8C6',  // 次要背景
+    tertiary: '#D8E2DC',   // 第三背景
+  },
+  border: {
+    primary: '#84A98C',    // 主边框
+    secondary: '#CCE8C6',  // 次要边框
+  },
+  hover: {
+    primary: '#9CB4A3',    // 主悬停色
+    secondary: '#D8E2DC',  // 次要悬停色
+  },
+  status: {
+    success: '#52796F',    // 成功状态
+    error: '#B85555',      // 错误状态（带绿色调）
+  }
+};
+
+// 更新头像颜色
 const getAvatarData = (name: string) => {
-  const colors = ['#1abc9c', '#3498db', '#9b59b6', '#f1c40f', '#e67e22'];
+  const colors = ['#84A98C', '#52796F', '#6B9080', '#CCD5AE', '#CCE8C6'];
   const index = (name.charCodeAt(0) + (name.charCodeAt(1) || 0 )) % colors.length;
   return {
     backgroundColor: colors[index],
@@ -144,14 +174,6 @@ const KaTeXStyle = () => (
     @import "katex/dist/katex.min.css";
   `}} />
 );
-
-// 添加主题常量
-const theme = {
-  primary: '#84A98C',
-  secondary: '#CCE8C6',
-  text: '#2D3A3A',
-  background: '#F5F7F5',
-};
 
 const ChatUI = () => {
   const [group, setGroup] = useState(groups[1]);
@@ -388,15 +410,15 @@ const ChatUI = () => {
   return (
     <>
       <KaTeXStyle />
-      <div className="fixed inset-0 bg-gradient-to-br from-[#CCE8C6] via-[#D8E2DC] to-[#84A98C] flex items-start md:items-center justify-center overflow-hidden">
+      <div className="fixed inset-0 bg-gradient-to-br from-[#CCE8C6] via-[#CCD5AE] to-[#84A98C] flex items-start md:items-center justify-center overflow-hidden">
         <div className="h-full flex flex-col bg-[#F5F7F5] w-full mx-auto relative shadow-xl md:max-w-3xl md:h-[95dvh] md:my-auto md:rounded-lg">
           {/* Header */}
-          <header className="bg-[#CCE8C6] shadow-sm flex-none md:rounded-t-lg border-b border-[#84A98C]">
+          <header className="bg-gradient-to-r from-[#CCE8C6] via-[#D8E2DC] to-[#CCD5AE] shadow-sm flex-none md:rounded-t-lg border-b border-[#84A98C]/20">
             <div className="flex items-center justify-between px-4 py-3">
               {/* 左侧群组信息 */}
               <div className="flex items-center gap-1.5">
                 <div className="relative w-10 h-10">
-                  <div className="w-full h-full overflow-hidden bg-white border border-[#84A98C] rounded-lg">
+                  <div className="w-full h-full overflow-hidden bg-[#F5F7F5] border border-[#84A98C]/30 rounded-lg">
                     {users.length === 1 ? (
                       <SingleAvatar user={users[0]} />
                     ) : users.length === 2 ? (
@@ -424,17 +446,17 @@ const ChatUI = () => {
                       </div>
                     )}
                   </div>
-                  <div className="absolute -bottom-0.5 -right-0.5 bg-green-500 w-3 h-3 border-2 border-white"></div>
+                  <div className="absolute -bottom-0.5 -right-0.5 bg-[#52796F] w-3 h-3 border-2 border-[#F5F7F5] rounded-full"></div>
                 </div>
                 <div>
-                  <h1 className="font-medium text-base">{group.name}</h1>
-                  <p className="text-xs text-gray-500">{users.length} 名成员</p>
+                  <h1 className="font-medium text-[#2D3A3A]">{group.name}</h1>
+                  <p className="text-xs text-[#84A98C]">{users.length} 名成员</p>
                 </div>
               </div>
               
               {/* 右侧头像组和按钮 */}
-              <div className="flex items-center">
-                <div className="flex -space-x-2 ">
+              <div className="flex items-center gap-2">
+                <div className="flex -space-x-2">
                   {users.slice(0, 4).map((user) => {
                     const avatarData = getAvatarData(user.name);
                     return (
@@ -459,12 +481,17 @@ const ChatUI = () => {
                     );
                   })}
                   {users.length > 4 && (
-                    <div className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center text-xs border-2 border-white">
+                    <div className="w-7 h-7 rounded-full bg-[#CCE8C6]/70 flex items-center justify-center text-xs border-2 border-[#F5F7F5] text-[#84A98C] font-medium">
                       +{users.length - 4}
                     </div>
                   )}
                 </div>
-                <Button variant="ghost" size="icon" onClick={() => setShowMembers(true)}>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={() => setShowMembers(true)}
+                  className="text-[#84A98C] hover:text-[#52796F] hover:bg-[#CCE8C6]/30"
+                >
                   <Settings2 className="w-5 h-5" />
                 </Button>
               </div>
@@ -472,7 +499,7 @@ const ChatUI = () => {
           </header>
 
           {/* Main Chat Area */}
-          <div className="flex-1 overflow-hidden bg-[#F5F7F5]">
+          <div className="flex-1 overflow-hidden bg-gradient-to-b from-[#F5F7F5] to-[#F5F7F5]/95">
             <ScrollArea className="h-full p-2" ref={chatAreaRef}>
               <div className="space-y-4">
                 {messages.map((message) => (
@@ -491,10 +518,10 @@ const ChatUI = () => {
                     )}
                     <div className={message.sender.name === "我" ? "text-right" : ""}>
                       <div className="text-sm text-[#84A98C] font-medium mb-1">{message.sender.name}</div>
-                      <div className={`p-3 rounded-2xl shadow-sm transition-shadow hover:shadow-md chat-message inline-block max-w-[85%] min-w-[120px] ${
+                      <div className={`p-3 rounded-2xl shadow-sm transition-all duration-200 chat-message inline-block max-w-[85%] min-w-[120px] ${
                         message.sender.name === "我" 
-                          ? "bg-[#84A98C] text-white text-left ml-auto rounded-tr-md" 
-                          : "bg-[#84A98C]/10 text-[#2D3A3A] backdrop-blur-sm rounded-tl-md"
+                          ? "bg-gradient-to-r from-[#84A98C] to-[#6B9080] text-[#F5F7F5] text-left ml-auto rounded-tr-md hover:shadow-md hover:from-[#6B9080] hover:to-[#84A98C]" 
+                          : "bg-gradient-to-r from-[#CCE8C6]/60 to-[#D8E2DC]/60 text-[#2D3A3A] backdrop-blur-sm rounded-tl-md hover:shadow-md hover:from-[#CCE8C6]/70 hover:to-[#D8E2DC]/70"
                       }`}>
                         {message.content.length < 30 && !message.content.includes('\n') ? (
                           <span className="whitespace-pre-wrap break-words">{message.content.trim()}</span>
@@ -503,27 +530,29 @@ const ChatUI = () => {
                             remarkPlugins={[remarkGfm, remarkMath]}
                             rehypePlugins={[rehypeKatex]}
                             className={`prose dark:prose-invert max-w-none ${
-                              message.sender.name === "我" ? "text-white [&_*]:text-white" : "text-[#2D3A3A] [&_*]:text-[#2D3A3A]"
+                              message.sender.name === "我" 
+                                ? "text-[#F5F7F5] [&_*]:text-[#F5F7F5]" 
+                                : "text-[#2D3A3A] [&_*]:text-[#2D3A3A]"
                             }
                             [&_h2]:py-1
                             [&_h2]:m-0
                             [&_h3]:py-1.5
                             [&_h3]:m-0
                             [&_p]:m-0 
-                            [&_pre]:bg-gray-900/80 
+                            [&_pre]:bg-[#2D3A3A]/80 
                             [&_pre]:p-2
                             [&_pre]:m-0 
                             [&_pre]:rounded-lg
-                            [&_pre]:text-gray-100
+                            [&_pre]:text-[#F5F7F5]
                             [&_pre]:whitespace-pre-wrap
                             [&_pre]:break-words
                             [&_pre_code]:whitespace-pre-wrap
                             [&_pre_code]:break-words
                             [&_code]:text-sm
-                            [&_code]:text-gray-400
-                            [&_code:not(:where([class~="language-"]))]:text-[#84A98C]
+                            [&_code]:text-[#84A98C]
+                            [&_code:not(:where([class~="language-"]))]:text-[#52796F]
                             [&_code:not(:where([class~="language-"]))]:bg-transparent
-                            [&_a]:text-[#84A98C]
+                            [&_a]:text-[#52796F]
                             [&_a]:no-underline
                             [&_ul]:my-2
                             [&_ol]:my-2
@@ -532,13 +561,14 @@ const ChatUI = () => {
                             [&_blockquote]:border-[#84A98C]/30
                             [&_blockquote]:pl-4
                             [&_blockquote]:my-2
-                            [&_blockquote]:italic`}
+                            [&_blockquote]:italic
+                            [&_blockquote]:text-[#52796F]`}
                           >
                             {message.content.trim()}
                           </ReactMarkdown>
                         )}
                         {message.isAI && isTyping && currentMessageRef.current === message.id && (
-                          <span className="typing-indicator ml-1">▋</span>
+                          <span className="typing-indicator ml-1 text-[#84A98C]">▋</span>
                         )}
                       </div>
                     </div>
@@ -556,17 +586,17 @@ const ChatUI = () => {
                   </div>
                 ))}
                 <div ref={messagesEndRef} />
-                {/* 添加一个二维码 */}
+                {/* QR Code */}
                 <div id="qrcode" className="flex flex-col items-center hidden">
                   <img src="/img/qr.png" alt="QR Code" className="w-24 h-24" />
-                  <p className="text-sm text-gray-500 mt-2 font-medium tracking-tight bg-[#F5F7F5]/50 px-3 py-1 rounded-full">扫码体验AI群聊</p>
+                  <p className="text-sm text-[#84A98C] mt-2 font-medium tracking-tight bg-[#F5F7F5]/80 px-3 py-1 rounded-full">扫码体验AI群聊</p>
                 </div>
               </div>
             </ScrollArea>
           </div>
 
           {/* Input Area */}
-          <div className="bg-[#CCE8C6]/30 border-t border-[#84A98C]/20 pb-3 pt-3 px-4 md:rounded-b-lg">
+          <div className="bg-gradient-to-r from-[#CCE8C6]/30 via-[#D8E2DC]/30 to-[#CCD5AE]/30 border-t border-[#84A98C]/10 pb-3 pt-3 px-4 md:rounded-b-lg backdrop-blur-sm">
             <div className="flex gap-2 pb-[env(safe-area-inset-bottom)]">
               {messages.length > 0 && (
                 <TooltipProvider>
@@ -576,12 +606,12 @@ const ChatUI = () => {
                         variant="outline"
                         size="icon"
                         onClick={handleShareChat}
-                        className="px-3 border-[#84A98C] text-[#84A98C] hover:text-[#84A98C]/80 rounded-xl hover:bg-[#CCE8C6]/20"
+                        className="px-3 border-[#84A98C]/60 text-[#84A98C] hover:text-[#52796F] rounded-xl hover:bg-[#CCE8C6]/30 hover:border-[#84A98C] transition-colors"
                       >
                         <Share2 className="w-4 h-4" />
                       </Button>
                     </TooltipTrigger>
-                    <TooltipContent>
+                    <TooltipContent className="bg-[#F5F7F5] text-[#2D3A3A] border-[#84A98C]/20">
                       <p>分享聊天记录</p>
                     </TooltipContent>
                   </Tooltip>
@@ -589,7 +619,7 @@ const ChatUI = () => {
               )}
               <Input 
                 placeholder="输入消息..." 
-                className="flex-1 rounded-xl border-[#84A98C] focus:ring-1 focus:ring-[#84A98C] focus:border-[#84A98C] bg-[#F5F7F5]/90 placeholder:text-[#84A98C]/50"
+                className="flex-1 rounded-xl border-[#84A98C]/40 focus:ring-1 focus:ring-[#84A98C] focus:border-[#84A98C] bg-[#F5F7F5]/90 placeholder:text-[#84A98C]/50 text-[#2D3A3A]"
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
@@ -597,10 +627,10 @@ const ChatUI = () => {
               <Button 
                 onClick={handleSendMessage}
                 disabled={isLoading}
-                className="bg-[#84A98C] hover:bg-[#84A98C]/90 rounded-xl px-4"
+                className="bg-gradient-to-r from-[#84A98C] to-[#6B9080] hover:from-[#6B9080] hover:to-[#84A98C] rounded-xl px-4 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
-                  <div className="w-4 h-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  <div className="w-4 h-4 animate-spin rounded-full border-2 border-[#F5F7F5] border-t-transparent" />
                 ) : (
                   <Send className="w-4 h-4" />
                 )}
@@ -622,7 +652,7 @@ const ChatUI = () => {
         />
       </div>
 
-      {/* 添加 SharePoster 组件 */}
+      {/* SharePoster */}
       <SharePoster 
         isOpen={showPoster}
         onClose={() => setShowPoster(false)}

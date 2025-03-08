@@ -1,6 +1,19 @@
 /// <reference lib="es2018" />
 /// <reference types="openai" />
 
+// 添加 OpenAI 类型声明
+declare module 'openai' {
+  class OpenAIApi {
+    constructor(config: { apiKey: string; baseURL?: string; defaultHeaders?: Record<string, string> });
+    chat: {
+      completions: {
+        create(params: any): Promise<any>;
+      };
+    };
+  }
+  export default OpenAIApi;
+}
+
 import OpenAI from 'openai';
 import { modelConfigs } from '../../src/config/aiCharacters';
 
@@ -97,36 +110,48 @@ export async function onRequestPost({ env, request }) {
     // 根据不同的模型处理请求
     switch (model) {
       case "moonshot-v1-8k": {
-        // Kimi - 非流式响应
-        const kimiRequest = {
+        // Kimi - 使用 OpenAI 客户端
+        const openai = new OpenAI({
+          apiKey: apiKey,
+          baseURL: modelConfig.baseURL
+        });
+
+        const stream = await openai.chat.completions.create({
           model: "moonshot-v1-8k",
           messages,
           temperature: 0.3,
-          max_tokens: 1000,
-          stream: false
-        };
-
-        const response = await fetch(modelConfig.baseURL + '/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${apiKey}`
-          },
-          body: JSON.stringify(kimiRequest)
+          stream: true
         });
 
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(`Kimi API error: ${response.status} ${response.statusText} - ${errorText}`);
-        }
+        const readable = new ReadableStream({
+          async start(controller) {
+            try {
+              for await (const chunk of stream as AsyncIterable<CompletionResponse>) {
+                const content = chunk.choices?.[0]?.delta?.content || '';
+                if (content) {
+                  const trimmedContent = content.replace(/^[\s,，。\.]+/, '');
+                  if (trimmedContent) {
+                    controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ content: trimmedContent })}\n\n`));
+                  }
+                }
+              }
+              controller.close();
+            } catch (error) {
+              console.error('Kimi 流式响应处理失败:', error);
+              controller.error(new Error(`Kimi 流式响应处理失败: ${error.message}`));
+            }
+          }
+        });
 
-        const result = await response.json();
-        if (!result.choices?.[0]?.message?.content) {
-          throw new Error('Kimi API 返回内容为空');
-        }
-
-        return new Response(JSON.stringify({ content: result.choices[0].message.content }), {
-          headers: { 'Content-Type': 'application/json' }
+        return new Response(readable, {
+          headers: {
+            'Content-Type': 'text/event-stream',
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type'
+          }
         });
       }
 
@@ -142,53 +167,115 @@ export async function onRequestPost({ env, request }) {
           top_p: 0.7
         };
 
-        const response = await fetch(modelConfig.baseURL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': apiKey
-          },
-          body: JSON.stringify(glmRequest)
+        try {
+          const response = await fetch(`${modelConfig.baseURL}/v4/chat/completions`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${apiKey}`
+            },
+            body: JSON.stringify(glmRequest)
+          });
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error('智谱 API Error:', {
+              status: response.status,
+              statusText: response.statusText,
+              error: errorText,
+              requestConfig: { ...glmRequest, messages: '[已省略]' }
+            });
+            throw new Error(`智谱 API error: ${response.status} ${response.statusText} - ${errorText}`);
+          }
+
+          // 创建 ReadableStream 处理流式响应
+          const readable = new ReadableStream({
+            async start(controller) {
+              try {
+                const reader = response.body.getReader();
+                let buffer = '';
+
+                while (true) {
+                  const { done, value } = await reader.read();
+                  if (done) {
+                    if (buffer) {
+                      const content = parseSSEResponse(new TextEncoder().encode(buffer));
+                      if (content) {
+                        controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ content })}\n\n`));
+                      }
+                    }
+                    controller.close();
+                    break;
+                  }
+
+                  const chunk = new TextDecoder().decode(value);
+                  buffer += chunk;
+                  const lines = buffer.split('\n\n');
+                  buffer = lines.pop() || '';
+
+                  for (const line of lines) {
+                    if (line.trim()) {
+                      const content = parseSSEResponse(new TextEncoder().encode(line));
+                      if (content) {
+                        controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ content })}\n\n`));
+                      }
+                    }
+                  }
+                }
+              } catch (error) {
+                console.error('智谱流式响应处理失败:', error);
+                controller.error(new Error(`智谱流式响应处理失败: ${error.message}`));
+              }
+            }
+          });
+
+          return new Response(readable, {
+            headers: {
+              'Content-Type': 'text/event-stream',
+              'Cache-Control': 'no-cache',
+              'Connection': 'keep-alive'
+            }
+          });
+        } catch (error) {
+          console.error('智谱 API 请求失败:', error);
+          throw error;
+        }
+      }
+
+      case "doubao-1.5-lite-32k": {
+        // 豆包 - 使用 OpenAI 客户端
+        const openai = new OpenAI({
+          apiKey: apiKey,
+          baseURL: modelConfig.baseURL,
+          defaultHeaders: modelConfig.headers ? {
+            'Authorization': `Bearer ${apiKey}`
+          } : undefined
         });
 
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(`智谱 API error: ${response.status} ${response.statusText} - ${errorText}`);
-        }
+        const stream = await openai.chat.completions.create({
+          model: "doubao-1.5-lite-32k",
+          messages,
+          temperature: 0.7,
+          max_tokens: 1000,
+          stream: true
+        });
 
-        // 创建 ReadableStream 处理流式响应
         const readable = new ReadableStream({
           async start(controller) {
             try {
-              const reader = response.body.getReader();
-              let buffer = '';
-
-              while (true) {
-                const { done, value } = await reader.read();
-                if (done) {
-                  if (buffer) {
-                    const content = parseSSEResponse(new TextEncoder().encode(buffer));
-                    if (content) {
-                      controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ content })}\n\n`));
-                    }
-                  }
-                  controller.close();
-                  break;
-                }
-
-                buffer += new TextDecoder().decode(value);
-                const lines = buffer.split('\n\n');
-                buffer = lines.pop() || '';
-
-                for (const line of lines) {
-                  const content = parseSSEResponse(new TextEncoder().encode(line));
-                  if (content) {
-                    controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ content })}\n\n`));
+              for await (const chunk of stream as AsyncIterable<CompletionResponse>) {
+                const content = chunk.choices?.[0]?.delta?.content || '';
+                if (content) {
+                  const trimmedContent = content.replace(/^[\s,，。\.]+/, '');
+                  if (trimmedContent) {
+                    controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ content: trimmedContent })}\n\n`));
                   }
                 }
               }
+              controller.close();
             } catch (error) {
-              controller.error(new Error(`智谱流式响应处理失败: ${error.message}`));
+              console.error('豆包流式响应处理失败:', error);
+              controller.error(new Error(`豆包流式响应处理失败: ${error.message}`));
             }
           }
         });
@@ -197,42 +284,11 @@ export async function onRequestPost({ env, request }) {
           headers: {
             'Content-Type': 'text/event-stream',
             'Cache-Control': 'no-cache',
-            'Connection': 'keep-alive'
+            'Connection': 'keep-alive',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type'
           }
-        });
-      }
-
-      case "doubao-1.5-lite-32k": {
-        // 豆包 - 非流式响应
-        const doubaoRequest = {
-          model: "doubao-1.5-lite-32k",
-          messages,
-          temperature: 0.7,
-          max_tokens: 1000,
-          stream: false  // 改为非流式
-        };
-
-        const response = await fetch(modelConfig.baseURL + '/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-API-KEY': apiKey
-          },
-          body: JSON.stringify(doubaoRequest)
-        });
-
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(`豆包 API error: ${response.status} ${response.statusText} - ${errorText}`);
-        }
-
-        const result = await response.json();
-        if (!result.choices?.[0]?.message?.content) {
-          throw new Error('豆包 API 返回内容为空');
-        }
-
-        return new Response(JSON.stringify({ content: result.choices[0].message.content }), {
-          headers: { 'Content-Type': 'application/json' }
         });
       }
 
