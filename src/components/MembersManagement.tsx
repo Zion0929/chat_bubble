@@ -1,6 +1,5 @@
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { UserPlus, Mic, MicOff } from 'lucide-react';
@@ -56,10 +55,10 @@ export const MembersManagement = ({
           </div>
           <div className="flex justify-between items-center mb-4">
             <span className="text-sm text-[#84A98C]">当前成员（{users.length}）</span>
-            <Button variant="outline" size="sm" className="border-[#84A98C]/40 text-[#84A98C] hover:bg-[#CCE8C6]/20 hover:text-[#52796F] shadow-sm">
+            <button className="inline-flex items-center justify-center px-3 py-1 text-xs border border-[#84A98C]/40 text-[#84A98C] hover:bg-[#CCE8C6]/20 hover:text-[#52796F] rounded-md shadow-sm">
               <UserPlus className="w-4 h-4 mr-2" />
               添加成员
-            </Button>
+            </button>
           </div>
           <ScrollArea className="h-[calc(100vh-150px)]">
             <div className="space-y-2 pr-4">

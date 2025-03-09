@@ -1,14 +1,7 @@
-import * as React from "react"
+import React from 'react';
 
-// 简化版本的 Button 组件，不依赖于外部库
-export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
-  size?: 'default' | 'sm' | 'lg' | 'icon';
-  asChild?: boolean;
-}
-
-export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className = "", variant = "default", size = "default", asChild = false, ...props }, ref) => {
+export const Button = React.forwardRef(
+  ({ className = "", variant = "default", size = "default", asChild = false, children, ...props }, ref) => {
     // 基础样式
     let baseStyle = "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none disabled:opacity-50";
     
@@ -59,7 +52,9 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         className={combinedClassName}
         ref={ref}
         {...props}
-      />
+      >
+        {children}
+      </button>
     );
   }
 );
@@ -67,7 +62,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 Button.displayName = "Button";
 
 // 为了兼容性，保留 buttonVariants 导出
-export const buttonVariants = (options: any) => {
+export const buttonVariants = (options) => {
   const { variant = "default", size = "default", className = "" } = options || {};
   
   // 基础样式
@@ -114,4 +109,4 @@ export const buttonVariants = (options: any) => {
   }
   
   return `${baseStyle} ${variantStyle} ${sizeStyle} ${className}`;
-};
+}; 

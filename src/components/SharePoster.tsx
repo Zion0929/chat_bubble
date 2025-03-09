@@ -1,7 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import domtoimage from 'dom-to-image';
 import { Dialog, DialogContent, DialogClose } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Share2, Download } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -189,9 +188,12 @@ export function SharePoster({ isOpen, onClose, chatAreaRef }: SharePosterProps) 
         </div>
         
         <div className="flex items-center justify-center gap-2 p-2 sm:p-4 border-t">
-          <Button onClick={handleDownload}>
+          <button 
+            onClick={handleDownload}
+            className="inline-flex items-center justify-center px-4 py-2 bg-[#84A98C] text-white rounded-md shadow-sm hover:bg-[#6B9080] transition-colors"
+          >
             保存聊天海报
-          </Button>
+          </button>
         </div>
       </DialogContent>
     </Dialog>
