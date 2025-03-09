@@ -1,0 +1,492 @@
+/* 精美UI增强样式 - 保持原有色系 */
+
+/* ===== 全局增强 ===== */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+/* 全局过渡效果 */
+* {
+  transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 0.2s;
+}
+
+/* 微妙的滚动条设计 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(204, 232, 198, 0.1);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(132, 169, 140, 0.5);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #84A98C;
+}
+
+/* ===== 新增特效按钮 ===== */
+.shine-effect {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  animation: shine-animation 8s infinite;
+  pointer-events: none;
+}
+
+@keyframes shine-animation {
+  0% {
+    left: -100%;
+  }
+  20% {
+    left: 100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+.icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 立体感增强 */
+.button-enhanced:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1), 0 1px 1px rgba(0, 0, 0, 0.1);
+}
+
+/* 按钮脉动效果 */
+.button-pulse {
+  animation: button-pulse 2s infinite cubic-bezier(0.66, 0, 0, 1);
+}
+
+@keyframes button-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(132, 169, 140, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(132, 169, 140, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(132, 169, 140, 0);
+  }
+}
+
+/* ===== 高级玻璃拟态效果 ===== */
+.glass-effect {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transform: translateZ(0);
+}
+
+/* ===== 消息气泡增强 ===== */
+/* 用户消息泡泡增强 */
+[data-sender="我"] .chat-message {
+  background: linear-gradient(135deg, #84A98C 0%, #52796F 100%) !important;
+  color: #F5F7F5 !important;
+  box-shadow: 0 4px 15px rgba(132, 169, 140, 0.4) !important;
+  transform-origin: bottom right;
+  animation: messagePopIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+/* 用户消息泡泡光泽效果 */
+[data-sender="我"] .chat-message::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 150%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  transform: skewX(-20deg);
+  animation: shine 4s infinite;
+}
+
+/* AI消息泡泡增强 */
+[data-sender]:not([data-sender="我"]) .chat-message {
+  background: linear-gradient(135deg, #CCE8C6 0%, #CCD5AE 100%) !important;
+  color: #2D3A3A !important;
+  box-shadow: 0 4px 15px rgba(204, 232, 198, 0.4) !important;
+  transform-origin: bottom left;
+  animation: messagePopIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+/* AI消息泡泡光泽效果 */
+[data-sender]:not([data-sender="我"]) .chat-message::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 150%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transform: skewX(-20deg);
+  animation: shine 6s infinite;
+}
+
+/* 泡泡出现动画 */
+@keyframes messagePopIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  40% {
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* 光泽效果动画 */
+@keyframes shine {
+  0% {
+    left: -150%;
+  }
+  20% {
+    left: 100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* ===== 头像增强 ===== */
+.avatar-enhanced {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  transform: translateZ(0);
+  transition: all 0.3s;
+}
+
+.avatar-enhanced:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.avatar-pulse {
+  position: relative;
+}
+
+.avatar-pulse::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 10px;
+  height: 10px;
+  background-color: #52796F;
+  border: 2px solid #F5F7F5;
+  border-radius: 50%;
+  box-shadow: 0 0 0 0 rgba(82, 121, 111, 1);
+  animation: avatarPulse 2s infinite;
+}
+
+@keyframes avatarPulse {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(82, 121, 111, 0.7);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 6px rgba(82, 121, 111, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(82, 121, 111, 0);
+  }
+}
+
+/* ===== 按钮增强 ===== */
+.button-enhanced {
+  position: relative;
+  overflow: hidden;
+  transform: translateZ(0);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.button-enhanced:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 7px 14px rgba(0, 0, 0, 0.15), 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+.button-enhanced:active {
+  transform: translateY(1px);
+}
+
+.button-enhanced::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: -100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: 0.6s;
+}
+
+.button-enhanced:hover::after {
+  left: 100%;
+}
+
+/* 发送按钮特效 */
+.send-button-enhanced {
+  background-image: linear-gradient(135deg, #84A98C 0%, #52796F 100%) !important;
+  box-shadow: 0 4px 10px rgba(82, 121, 111, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.send-button-enhanced:hover {
+  background-image: linear-gradient(135deg, #6B9080 0%, #84A98C 100%) !important;
+  box-shadow: 0 6px 15px rgba(82, 121, 111, 0.4);
+  transform: translateY(-2px);
+}
+
+.send-button-enhanced:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 8px rgba(82, 121, 111, 0.3);
+}
+
+/* ===== 输入框增强 ===== */
+.input-enhanced {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid rgba(132, 169, 140, 0.3);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.input-enhanced:focus {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: #84A98C;
+  box-shadow: 0 0 0 3px rgba(132, 169, 140, 0.2), 0 2px 10px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+.input-enhanced:hover {
+  border-color: rgba(132, 169, 140, 0.5);
+}
+
+/* ===== 配置面板增强 ===== */
+.panel-enhanced {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: -5px 0 25px rgba(0, 0, 0, 0.1);
+  animation: panelSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes panelSlideIn {
+  0% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* ===== 打字指示器增强 ===== */
+.typing-indicator-enhanced {
+  display: inline-flex;
+  align-items: center;
+}
+
+.typing-dot {
+  margin: 0 1px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background-color: currentColor;
+  opacity: 0.7;
+}
+
+.typing-dot:nth-child(1) {
+  animation: typingAnimation 1.4s infinite 0s;
+}
+
+.typing-dot:nth-child(2) {
+  animation: typingAnimation 1.4s infinite 0.2s;
+}
+
+.typing-dot:nth-child(3) {
+  animation: typingAnimation 1.4s infinite 0.4s;
+}
+
+@keyframes typingAnimation {
+  0% {
+    transform: translateY(0px);
+    opacity: 0.7;
+  }
+  25% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(0px);
+    opacity: 0.7;
+  }
+  100% {
+    transform: translateY(0px);
+    opacity: 0.7;
+  }
+}
+
+/* ===== 背景增强 ===== */
+.bg-enhanced {
+  position: relative;
+  background: linear-gradient(135deg, #CCE8C6 0%, #CCD5AE 50%, #84A98C 100%);
+  overflow: hidden;
+}
+
+.bg-enhanced::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 30% 40%, rgba(255, 255, 255, 0.3) 0%, transparent 70%),
+              radial-gradient(circle at 70% 60%, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* ===== 页面过渡动画 ===== */
+.page-transition-in {
+  animation: pageTransitionIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes pageTransitionIn {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== 卡片悬停效果 ===== */
+.hover-lift {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-lift:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* ===== 流动边框效果 ===== */
+.flowing-border {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.flowing-border::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: calc(100% + 4px);
+  height: calc(100% + 4px);
+  background: linear-gradient(45deg, #CCE8C6, #84A98C, #52796F, #CCD5AE);
+  background-size: 400% 400%;
+  z-index: -1;
+  animation: flowingBorderAnimation 10s linear infinite;
+}
+
+@keyframes flowingBorderAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* 确保内容居中对齐 */
+.content-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  align-items: stretch;
+  justify-content: stretch;
+}
+
+/* 通用间距处理 */
+.spacing-y > * + * {
+  margin-top: 1rem;
+}
+
+.spacing-x > * + * {
+  margin-left: 1rem;
+}
+
+/* 更平滑的滚动体验 */
+.smooth-scroll {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+} 

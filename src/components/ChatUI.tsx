@@ -448,15 +448,15 @@ const ChatUI = () => {
   return (
     <>
       <KaTeXStyle />
-      <div className="fixed inset-0 bg-gradient-to-br from-[#CCE8C6] via-[#CCD5AE] to-[#84A98C] flex items-start md:items-center justify-center overflow-hidden" style={{ backgroundImage: 'var(--background-gradient)' }}>
-        <div className="h-full flex flex-col bg-[#F5F7F5] w-full mx-auto relative shadow-xl md:max-w-3xl md:h-[95dvh] md:my-auto md:rounded-lg backdrop-blur-sm border border-[#84A98C]/10" style={{ boxShadow: 'var(--card-shadow)' }}>
+      <div className="fixed inset-0 bg-enhanced flex items-start md:items-center justify-center overflow-hidden">
+        <div className="h-full flex flex-col glass-card w-full mx-auto relative shadow-xl md:max-w-3xl md:h-[95dvh] md:my-auto md:rounded-lg backdrop-blur-sm border border-[#84A98C]/10 page-transition-in">
           {/* Header */}
-          <header className="bg-gradient-to-br from-[#CCE8C6] via-[#D8E2DC] to-[#CCD5AE] shadow-sm flex-none md:rounded-t-lg border-b border-[#84A98C]/20" style={{ backgroundImage: 'var(--header-gradient)' }}>
+          <header className="bg-gradient-to-br from-[#CCE8C6] via-[#D8E2DC] to-[#CCD5AE] shadow-sm flex-none md:rounded-t-lg border-b border-[#84A98C]/20 glass-effect">
             <div className="flex items-center justify-between px-4 py-3">
               {/* 左侧群组信息 */}
               <div className="flex items-center gap-1.5">
-                <div className="relative w-10 h-10">
-                  <div className="w-full h-full overflow-hidden bg-[#F5F7F5] border border-[#84A98C]/30 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300" style={{ boxShadow: 'var(--card-shadow)' }}>
+                <div className="relative w-10 h-10 avatar-enhanced avatar-pulse">
+                  <div className="w-full h-full overflow-hidden bg-[#F5F7F5] border border-[#84A98C]/30 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 hover-lift" style={{ boxShadow: 'var(--card-shadow)' }}>
                     {users.length === 1 ? (
                       <SingleAvatar user={users[0]} />
                     ) : users.length === 2 ? (
@@ -484,9 +484,8 @@ const ChatUI = () => {
                       </div>
                     )}
                   </div>
-                  <div className="absolute -bottom-0.5 -right-0.5 bg-[#52796F] w-3 h-3 border-2 border-[#F5F7F5] rounded-full shadow-sm"></div>
                 </div>
-                <div>
+                <div className="animate-fadeIn">
                   <h1 className="font-medium text-[#2D3A3A] hover:text-[#52796F] transition-colors">{group.name}</h1>
                   <p className="text-xs text-[#84A98C] hover:text-[#52796F] transition-colors">{users.length} 名成员</p>
                 </div>
@@ -498,20 +497,20 @@ const ChatUI = () => {
                   {users.slice(0, 4).map((user) => {
                     const avatarData = getAvatarData(user.name);
                     return (
-                      <div key={user.id} className="w-7 h-7 rounded-full bg-[#CCE8C6]/80 flex items-center justify-center text-xs border-2 border-[#F5F7F5] text-[#84A98C] font-medium shadow-sm hover:shadow-md transition-shadow duration-300" style={{ boxShadow: 'var(--card-shadow)' }}>
+                      <div key={user.id} className="w-7 h-7 rounded-full bg-[#CCE8C6]/80 flex items-center justify-center text-xs border-2 border-[#F5F7F5] text-[#84A98C] font-medium shadow-sm hover:shadow-md transition-shadow duration-300 hover-lift" style={{ boxShadow: 'var(--card-shadow)' }}>
                         {avatarData.text}
                       </div>
                     );
                   })}
                   {users.length > 4 && (
-                    <div className="w-7 h-7 rounded-full bg-[#CCE8C6]/80 flex items-center justify-center text-xs border-2 border-[#F5F7F5] text-[#84A98C] font-medium shadow-sm hover:shadow-md transition-shadow duration-300" style={{ boxShadow: 'var(--card-shadow)' }}>
+                    <div className="w-7 h-7 rounded-full bg-[#CCE8C6]/80 flex items-center justify-center text-xs border-2 border-[#F5F7F5] text-[#84A98C] font-medium shadow-sm hover:shadow-md transition-shadow duration-300 hover-lift" style={{ boxShadow: 'var(--card-shadow)' }}>
                       +{users.length - 4}
                     </div>
                   )}
                 </div>
                 <button 
                   onClick={() => setShowMembers(true)}
-                  className="w-8 h-8 flex items-center justify-center rounded-full text-[#84A98C] hover:text-[#52796F] hover:bg-[#CCE8C6]/40 transition-colors"
+                  className="w-8 h-8 flex items-center justify-center rounded-full text-[#84A98C] hover:text-[#52796F] hover:bg-[#CCE8C6]/40 transition-colors button-enhanced"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
@@ -524,14 +523,14 @@ const ChatUI = () => {
 
           {/* Main Chat Area */}
           <div className="flex-1 overflow-hidden bg-gradient-to-b from-[#F5F7F5] to-[#F5F7F5]/95">
-            <div className="h-full p-2 overflow-y-auto" ref={chatAreaRef}>
+            <div className="h-full p-2 overflow-y-auto smooth-scroll" ref={chatAreaRef}>
               <div className="space-y-4">
                 {messages.map((message) => (
                   <div key={message.id} 
                     className={`flex items-start gap-2 ${message.sender.name === "我" ? "justify-end" : ""}`}
                     data-sender={message.sender.name}>
                     {message.sender.name !== "我" && (
-                      <div className="flex-shrink-0 w-10 h-10 rounded-full overflow-hidden bg-[#84A98C] flex items-center justify-center text-white">
+                      <div className="flex-shrink-0 w-10 h-10 rounded-full overflow-hidden bg-[#84A98C] flex items-center justify-center text-white avatar-enhanced">
                         {'avatar' in message.sender && message.sender.avatar ? (
                           <img src={message.sender.avatar} alt={message.sender.name} className="w-full h-full object-cover" />
                         ) : (
@@ -541,7 +540,7 @@ const ChatUI = () => {
                     )}
                     <div className={`${message.sender.name === "我" ? "text-right" : ""} flex-1`}>
                       <div className="text-sm text-[#84A98C] font-medium mb-1">{message.sender.name}</div>
-                      <div className={`p-3 rounded-2xl shadow-sm transition-all duration-300 inline-block max-w-[85%] min-w-[120px] ${
+                      <div className={`p-3 rounded-2xl chat-message shadow-sm transition-all duration-300 inline-block max-w-[85%] min-w-[120px] ${
                         message.sender.name === "我" 
                           ? "bg-[#84A98C] text-[#F5F7F5] text-left ml-auto rounded-tr-md" 
                           : "bg-[#CCE8C6] text-[#2D3A3A] rounded-tl-md"
@@ -554,12 +553,16 @@ const ChatUI = () => {
                           </div>
                         )}
                         {message.isAI && isTyping && currentMessageRef.current === message.id && (
-                          <span className="ml-1 text-[#84A98C]">▋</span>
+                          <span className="ml-1 typing-indicator-enhanced">
+                            <span className="typing-dot"></span>
+                            <span className="typing-dot"></span>
+                            <span className="typing-dot"></span>
+                          </span>
                         )}
                       </div>
                     </div>
                     {message.sender.name === "我" && (
-                      <div className="flex-shrink-0 w-10 h-10 rounded-full overflow-hidden bg-[#84A98C] flex items-center justify-center text-white">
+                      <div className="flex-shrink-0 w-10 h-10 rounded-full overflow-hidden bg-[#84A98C] flex items-center justify-center text-white avatar-enhanced">
                         {'avatar' in message.sender && message.sender.avatar ? (
                           <img src={message.sender.avatar} alt={message.sender.name} className="w-full h-full object-cover" />
                         ) : (
@@ -572,20 +575,20 @@ const ChatUI = () => {
                 <div ref={messagesEndRef} />
                 {/* QR Code */}
                 <div id="qrcode" className="flex flex-col items-center hidden">
-                  <img src="/img/qr.png" alt="QR Code" className="w-24 h-24 shadow-md rounded-lg" style={{ boxShadow: 'var(--card-shadow)' }} />
-                  <p className="text-sm text-[#84A98C] mt-2 font-medium tracking-tight bg-[#F5F7F5]/80 px-3 py-1 rounded-full shadow-sm" style={{ boxShadow: 'var(--card-shadow)' }}>扫码体验AI群聊</p>
+                  <img src="/img/qr.png" alt="QR Code" className="w-24 h-24 shadow-md rounded-lg flowing-border" style={{ boxShadow: 'var(--card-shadow)' }} />
+                  <p className="text-sm text-[#84A98C] mt-2 font-medium tracking-tight bg-[#F5F7F5]/80 px-3 py-1 rounded-full shadow-sm glass-effect" style={{ boxShadow: 'var(--card-shadow)' }}>扫码体验AI群聊</p>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Input Area */}
-          <div className="bg-[#F5F7F5] border-t border-[#84A98C]/20 pb-3 pt-3 px-4 md:rounded-b-lg">
+          <div className="bg-[#F5F7F5] border-t border-[#84A98C]/20 pb-3 pt-3 px-4 md:rounded-b-lg glass-effect">
             <div className="flex gap-2 pb-[env(safe-area-inset-bottom)]">
               {messages.length > 0 && (
                 <button 
                   onClick={handleShareChat}
-                  className="px-3 h-10 border border-[#84A98C]/60 text-[#84A98C] hover:text-[#52796F] rounded-xl hover:bg-[#CCE8C6]/40 hover:border-[#84A98C] transition-colors shadow-sm flex items-center justify-center"
+                  className="px-3 h-10 border border-[#84A98C]/60 text-[#84A98C] hover:text-[#52796F] rounded-xl hover:bg-[#CCE8C6]/40 hover:border-[#84A98C] transition-colors shadow-sm flex items-center justify-center button-enhanced"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="18" cy="5" r="3"></circle>
@@ -599,7 +602,7 @@ const ChatUI = () => {
               <input 
                 type="text"
                 placeholder="输入消息..." 
-                className="flex-1 h-10 px-3 rounded-xl border border-[#84A98C]/40 focus:ring-2 focus:ring-[#84A98C]/30 focus:border-[#84A98C] bg-[#F5F7F5]/90 placeholder:text-[#84A98C]/60 text-[#2D3A3A] shadow-sm"
+                className="flex-1 h-10 px-3 rounded-xl border border-[#84A98C]/40 focus:ring-2 focus:ring-[#84A98C]/30 focus:border-[#84A98C] bg-[#F5F7F5]/90 placeholder:text-[#84A98C]/60 text-[#2D3A3A] shadow-sm input-enhanced"
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
@@ -607,7 +610,7 @@ const ChatUI = () => {
               <button 
                 onClick={handleSendMessage}
                 disabled={isLoading}
-                className="h-10 px-4 bg-[#84A98C] hover:bg-[#6B9080] rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md text-white flex items-center justify-center"
+                className="h-10 px-4 bg-[#84A98C] hover:bg-[#6B9080] rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md text-white flex items-center justify-center send-button-enhanced"
               >
                 {isLoading ? (
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -623,13 +626,13 @@ const ChatUI = () => {
         </div>
 
         {/* Members Management Dialog */}
-        <div className={`fixed inset-y-0 right-0 w-[300px] sm:w-[400px] bg-white shadow-lg transform transition-transform duration-300 ${showMembers ? 'translate-x-0' : 'translate-x-full'}`}>
+        <div className={`fixed inset-y-0 right-0 w-[300px] sm:w-[400px] panel-enhanced shadow-lg transform transition-transform duration-300 ${showMembers ? 'translate-x-0' : 'translate-x-full'}`}>
           <div className="p-4 border-b border-[#84A98C]/20">
             <div className="flex justify-between items-center">
               <h2 className="text-[#2D3A3A] text-xl font-medium">群聊配置</h2>
               <button 
                 onClick={() => setShowMembers(false)}
-                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#F5F7F5]"
+                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#F5F7F5] button-enhanced"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -639,7 +642,7 @@ const ChatUI = () => {
             </div>
           </div>
           <div className="p-4">
-            <div className="mb-6 p-4 bg-[#F5F7F5] rounded-lg border border-[#84A98C]/20 shadow-sm">
+            <div className="mb-6 p-4 bg-[#F5F7F5] rounded-lg border border-[#84A98C]/20 shadow-sm glass-card hover-lift">
               <div className="flex items-center justify-between">
                 <div>
                   <div className="text-sm text-[#2D3A3A] font-medium">全员讨论模式</div>
@@ -657,7 +660,7 @@ const ChatUI = () => {
             </div>
             <div className="flex justify-between items-center mb-4">
               <span className="text-sm text-[#84A98C]">当前成员（{users.length}）</span>
-              <button className="px-2 py-1 text-sm border border-[#84A98C]/40 text-[#84A98C] hover:bg-[#CCE8C6]/20 hover:text-[#52796F] rounded-md shadow-sm flex items-center">
+              <button className="px-2 py-1 text-sm border border-[#84A98C]/40 text-[#84A98C] hover:bg-[#CCE8C6]/20 hover:text-[#52796F] rounded-md shadow-sm flex items-center button-enhanced">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
                   <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                   <circle cx="8.5" cy="7" r="4"></circle>
@@ -667,12 +670,12 @@ const ChatUI = () => {
                 添加成员
               </button>
             </div>
-            <div className="h-[calc(100vh-250px)] overflow-auto pr-2">
+            <div className="h-[calc(100vh-250px)] overflow-auto pr-2 smooth-scroll">
               <div className="space-y-2">
                 {users.map((user) => (
-                  <div key={user.id} className="flex items-center justify-between p-2 hover:bg-[#F5F7F5] rounded-lg transition-colors duration-200">
+                  <div key={user.id} className="flex items-center justify-between p-2 hover:bg-[#F5F7F5] rounded-lg transition-colors duration-200 hover-lift">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full overflow-hidden bg-[#84A98C] flex items-center justify-center text-white">
+                      <div className="w-10 h-10 rounded-full overflow-hidden bg-[#84A98C] flex items-center justify-center text-white avatar-enhanced">
                         {'avatar' in user && user.avatar ? (
                           <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
                         ) : (
@@ -690,7 +693,7 @@ const ChatUI = () => {
                       <div className="flex gap-2">
                         <button
                           onClick={() => handleToggleMute(user.id as string)}
-                          className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                          className={`w-8 h-8 rounded-full flex items-center justify-center button-enhanced ${
                             mutedUsers.includes(user.id as string) 
                               ? "text-red-500 hover:bg-red-100/20" 
                               : "text-green-500 hover:bg-green-100/20"
@@ -724,13 +727,13 @@ const ChatUI = () => {
       </div>
 
       {/* SharePoster */}
-      <div className={`fixed inset-0 bg-black/50 flex items-center justify-center z-50 ${showPoster ? 'opacity-100 visible' : 'opacity-0 invisible'} transition-opacity duration-300`}>
-        <div className="bg-white rounded-lg max-w-[90vw] max-h-[90vh] overflow-auto p-4">
+      <div className={`fixed inset-0 bg-black/50 flex items-center justify-center z-50 backdrop-blur-sm ${showPoster ? 'opacity-100 visible' : 'opacity-0 invisible'} transition-opacity duration-300`}>
+        <div className="bg-white rounded-lg max-w-[90vw] max-h-[90vh] overflow-auto p-4 glass-card">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-[#2D3A3A] text-xl font-medium">分享聊天记录</h2>
             <button 
               onClick={() => setShowPoster(false)}
-              className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#F5F7F5]"
+              className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#F5F7F5] button-enhanced"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -739,7 +742,7 @@ const ChatUI = () => {
             </button>
           </div>
           <div className="flex items-center justify-center">
-            <button className="px-4 py-2 bg-[#84A98C] text-white rounded-md shadow-sm hover:bg-[#6B9080] transition-colors">
+            <button className="px-4 py-2 bg-[#84A98C] text-white rounded-md shadow-sm hover:bg-[#6B9080] transition-colors button-enhanced">
               保存聊天海报
             </button>
           </div>
