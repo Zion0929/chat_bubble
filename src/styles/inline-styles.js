@@ -1,0 +1,366 @@
+// 动态添加样式，确保美化效果立即生效
+(function() {
+  // 创建样式元素
+  const style = document.createElement('style');
+  style.type = 'text/css';
+  style.id = 'enhanced-styles';
+  
+  // 添加样式内容
+  style.innerHTML = `
+    /* 全局美化 */
+    body {
+      overflow-x: hidden;
+      background: linear-gradient(135deg, #CCE8C6 0%, #CCD5AE 50%, #84A98C 100%) !important;
+    }
+    
+    /* 美化滚动条 */
+    ::-webkit-scrollbar {
+      width: 6px !important;
+      height: 6px !important;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: rgba(204, 232, 198, 0.1) !important;
+      border-radius: 3px !important;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: rgba(132, 169, 140, 0.5) !important;
+      border-radius: 3px !important;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: #84A98C !important;
+    }
+    
+    /* 美化背景 */
+    .fixed.inset-0,
+    div[class*="fixed"][class*="inset-0"] {
+      background: linear-gradient(135deg, #CCE8C6 0%, #CCD5AE 50%, #84A98C 100%) !important;
+      position: relative !important;
+    }
+    
+    .fixed.inset-0::before,
+    div[class*="fixed"][class*="inset-0"]::before {
+      content: "" !important;
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      bottom: 0 !important;
+      background: radial-gradient(circle at 30% 40%, rgba(255, 255, 255, 0.3) 0%, transparent 70%),
+                  radial-gradient(circle at 70% 60%, rgba(255, 255, 255, 0.3) 0%, transparent 70%) !important;
+      pointer-events: none !important;
+    }
+    
+    /* 美化主卡片 */
+    .h-full.flex.flex-col.bg-\\[\\#F5F7F5\\],
+    .h-full.flex.flex-col,
+    div[class*="h-full"][class*="flex"][class*="flex-col"] {
+      background: rgba(255, 255, 255, 0.7) !important;
+      backdrop-filter: blur(16px) !important;
+      -webkit-backdrop-filter: blur(16px) !important;
+      border-radius: 12px !important;
+      border: 1px solid rgba(255, 255, 255, 0.5) !important;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08) !important;
+      overflow: hidden !important;
+      animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+    
+    /* 美化头部 */
+    header.bg-gradient-to-br,
+    header,
+    div[class*="bg-gradient-to-br"] {
+      background: rgba(255, 255, 255, 0.2) !important;
+      backdrop-filter: blur(10px) !important;
+      -webkit-backdrop-filter: blur(10px) !important;
+      border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    }
+    
+    /* 美化头像 */
+    .w-10.h-10,
+    div[class*="w-10 h-10"],
+    div[class*="w-10"][class*="h-10"] {
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1) !important;
+      transition: all 0.3s !important;
+    }
+    
+    .w-10.h-10:hover,
+    div[class*="w-10 h-10"]:hover,
+    div[class*="w-10"][class*="h-10"]:hover {
+      transform: scale(1.05) !important;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15) !important;
+    }
+    
+    /* 添加头像在线状态指示 */
+    .relative.w-10.h-10::after,
+    div[class*="relative"][class*="w-10"][class*="h-10"]::after {
+      content: '' !important;
+      position: absolute !important;
+      bottom: 0 !important;
+      right: 0 !important;
+      width: 10px !important;
+      height: 10px !important;
+      background-color: #52796F !important;
+      border: 2px solid #F5F7F5 !important;
+      border-radius: 50% !important;
+      box-shadow: 0 0 0 0 rgba(82, 121, 111, 1) !important;
+      animation: pulse 2s infinite !important;
+    }
+    
+    /* 美化消息气泡 */
+    [data-sender="我"] .p-3.rounded-2xl,
+    [data-sender="我"] .chat-message,
+    [data-sender="我"] div[class*="p-3"][class*="rounded-2xl"] {
+      background: linear-gradient(135deg, #84A98C 0%, #52796F 100%) !important;
+      color: #F5F7F5 !important;
+      box-shadow: 0 4px 15px rgba(132, 169, 140, 0.4) !important;
+      transform-origin: bottom right !important;
+      animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+      position: relative !important;
+      overflow: hidden !important;
+    }
+    
+    [data-sender]:not([data-sender="我"]) .p-3.rounded-2xl,
+    [data-sender]:not([data-sender="我"]) .chat-message,
+    [data-sender]:not([data-sender="我"]) div[class*="p-3"][class*="rounded-2xl"] {
+      background: linear-gradient(135deg, #CCE8C6 0%, #CCD5AE 100%) !important;
+      color: #2D3A3A !important;
+      box-shadow: 0 4px 15px rgba(204, 232, 198, 0.4) !important;
+      transform-origin: bottom left !important;
+      animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+      position: relative !important;
+      overflow: hidden !important;
+    }
+    
+    /* 消息气泡光泽效果 */
+    [data-sender="我"] .p-3.rounded-2xl::before,
+    [data-sender="我"] .chat-message::before,
+    [data-sender="我"] div[class*="p-3"][class*="rounded-2xl"]::before {
+      content: "" !important;
+      position: absolute !important;
+      top: 0 !important;
+      left: -150% !important;
+      width: 150% !important;
+      height: 100% !important;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.1),
+        transparent
+      ) !important;
+      transform: skewX(-20deg) !important;
+      animation: shine 4s infinite !important;
+    }
+    
+    [data-sender]:not([data-sender="我"]) .p-3.rounded-2xl::before,
+    [data-sender]:not([data-sender="我"]) .chat-message::before,
+    [data-sender]:not([data-sender="我"]) div[class*="p-3"][class*="rounded-2xl"]::before {
+      content: "" !important;
+      position: absolute !important;
+      top: 0 !important;
+      left: -150% !important;
+      width: 150% !important;
+      height: 100% !important;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.2),
+        transparent
+      ) !important;
+      transform: skewX(-20deg) !important;
+      animation: shine 6s infinite !important;
+    }
+    
+    /* 美化输入区域 */
+    .bg-\\[\\#F5F7F5\\].border-t,
+    div[class*="bg-[#F5F7F5]"][class*="border-t"] {
+      background: rgba(255, 255, 255, 0.2) !important;
+      backdrop-filter: blur(10px) !important;
+      -webkit-backdrop-filter: blur(10px) !important;
+      border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    }
+    
+    /* 美化输入框 */
+    input[type="text"],
+    input.flex-1 {
+      background: rgba(255, 255, 255, 0.8) !important;
+      backdrop-filter: blur(4px) !important;
+      -webkit-backdrop-filter: blur(4px) !important;
+      border: 1px solid rgba(132, 169, 140, 0.3) !important;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05) !important;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+    
+    input[type="text"]:focus,
+    input.flex-1:focus {
+      background: rgba(255, 255, 255, 0.95) !important;
+      border-color: #84A98C !important;
+      box-shadow: 0 0 0 3px rgba(132, 169, 140, 0.2), 0 2px 10px rgba(0, 0, 0, 0.1) !important;
+      transform: translateY(-1px) !important;
+    }
+    
+    /* 美化按钮 */
+    button,
+    button[type="button"] {
+      position: relative !important;
+      overflow: hidden !important;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+    
+    button:hover,
+    button[type="button"]:hover {
+      transform: translateY(-2px) !important;
+      box-shadow: 0 7px 14px rgba(0, 0, 0, 0.15), 0 3px 6px rgba(0, 0, 0, 0.1) !important;
+    }
+    
+    button:active,
+    button[type="button"]:active {
+      transform: translateY(1px) !important;
+    }
+    
+    /* 添加动画关键帧 */
+    @keyframes fadeIn {
+      0% {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    @keyframes popIn {
+      0% {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+      40% {
+        transform: scale(1.05);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+    
+    @keyframes shine {
+      0% {
+        left: -150%;
+      }
+      20% {
+        left: 100%;
+      }
+      100% {
+        left: 100%;
+      }
+    }
+    
+    @keyframes pulse {
+      0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(82, 121, 111, 0.7);
+      }
+      70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 6px rgba(82, 121, 111, 0);
+      }
+      100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(82, 121, 111, 0);
+      }
+    }
+  `;
+  
+  // 添加到文档头部
+  document.head.appendChild(style);
+  
+  // 动态应用样式到特定元素
+  function applyStyles() {
+    // 应用背景样式
+    const backgrounds = document.querySelectorAll('.fixed.inset-0');
+    backgrounds.forEach(bg => {
+      bg.style.background = 'linear-gradient(135deg, #CCE8C6 0%, #CCD5AE 50%, #84A98C 100%)';
+      
+      // 创建光晕效果
+      if (!bg.querySelector('.bg-overlay')) {
+        const overlay = document.createElement('div');
+        overlay.className = 'bg-overlay';
+        overlay.style.position = 'absolute';
+        overlay.style.inset = '0';
+        overlay.style.background = 'radial-gradient(circle at 30% 40%, rgba(255, 255, 255, 0.3) 0%, transparent 70%), radial-gradient(circle at 70% 60%, rgba(255, 255, 255, 0.3) 0%, transparent 70%)';
+        overlay.style.pointerEvents = 'none';
+        bg.appendChild(overlay);
+      }
+    });
+    
+    // 应用卡片样式
+    const cards = document.querySelectorAll('.h-full.flex.flex-col');
+    cards.forEach(card => {
+      card.style.background = 'rgba(255, 255, 255, 0.7)';
+      card.style.backdropFilter = 'blur(16px)';
+      card.style.webkitBackdropFilter = 'blur(16px)';
+      card.style.borderRadius = '12px';
+      card.style.border = '1px solid rgba(255, 255, 255, 0.5)';
+      card.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.08)';
+    });
+    
+    // 应用头像样式
+    const avatars = document.querySelectorAll('.w-10.h-10');
+    avatars.forEach(avatar => {
+      avatar.style.boxShadow = '0 5px 15px rgba(0, 0, 0, 0.1)';
+      avatar.style.transition = 'all 0.3s';
+      
+      avatar.addEventListener('mouseenter', () => {
+        avatar.style.transform = 'scale(1.05)';
+        avatar.style.boxShadow = '0 8px 20px rgba(0, 0, 0, 0.15)';
+      });
+      
+      avatar.addEventListener('mouseleave', () => {
+        avatar.style.transform = 'scale(1)';
+        avatar.style.boxShadow = '0 5px 15px rgba(0, 0, 0, 0.1)';
+      });
+    });
+    
+    // 应用按钮样式
+    const buttons = document.querySelectorAll('button');
+    buttons.forEach(button => {
+      button.style.position = 'relative';
+      button.style.overflow = 'hidden';
+      button.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+      
+      button.addEventListener('mouseenter', () => {
+        button.style.transform = 'translateY(-2px)';
+        button.style.boxShadow = '0 7px 14px rgba(0, 0, 0, 0.15), 0 3px 6px rgba(0, 0, 0, 0.1)';
+      });
+      
+      button.addEventListener('mouseleave', () => {
+        button.style.transform = 'translateY(0)';
+        button.style.boxShadow = '';
+      });
+      
+      button.addEventListener('mousedown', () => {
+        button.style.transform = 'translateY(1px)';
+      });
+      
+      button.addEventListener('mouseup', () => {
+        button.style.transform = 'translateY(-2px)';
+      });
+    });
+  }
+  
+  // 在DOM加载完成后应用样式
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', applyStyles);
+  } else {
+    applyStyles();
+  }
+  
+  // 监听DOM变化，动态应用样式
+  const observer = new MutationObserver(applyStyles);
+  observer.observe(document.documentElement, { 
+    childList: true, 
+    subtree: true 
+  });
+})(); 

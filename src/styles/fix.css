@@ -183,4 +183,335 @@
 
 .shadow-md {
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+}
+
+/* ===== 全新美化样式 - 直接应用 ===== */
+
+/* 全局美化 */
+body {
+  overflow-x: hidden;
+}
+
+/* 美化滚动条 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(204, 232, 198, 0.1);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(132, 169, 140, 0.5);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #84A98C;
+}
+
+/* 美化背景 */
+.fixed.inset-0 {
+  background: linear-gradient(135deg, #CCE8C6 0%, #CCD5AE 50%, #84A98C 100%);
+  position: relative;
+}
+
+.fixed.inset-0::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 30% 40%, rgba(255, 255, 255, 0.3) 0%, transparent 70%),
+              radial-gradient(circle at 70% 60%, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* 美化主卡片 */
+.h-full.flex.flex-col.bg-\[\#F5F7F5\] {
+  background: rgba(255, 255, 255, 0.7) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border-radius: 12px !important;
+  border: 1px solid rgba(255, 255, 255, 0.5) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08) !important;
+  overflow: hidden !important;
+  animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 美化头部 */
+header.bg-gradient-to-br {
+  background: rgba(255, 255, 255, 0.2) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+/* 美化头像 */
+.w-10.h-10 {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1) !important;
+  transition: all 0.3s !important;
+}
+
+.w-10.h-10:hover {
+  transform: scale(1.05) !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* 添加头像在线状态指示 */
+.relative.w-10.h-10::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 10px;
+  height: 10px;
+  background-color: #52796F;
+  border: 2px solid #F5F7F5;
+  border-radius: 50%;
+  box-shadow: 0 0 0 0 rgba(82, 121, 111, 1);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(82, 121, 111, 0.7);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 6px rgba(82, 121, 111, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(82, 121, 111, 0);
+  }
+}
+
+/* 美化消息气泡 */
+[data-sender="我"] .chat-message {
+  background: linear-gradient(135deg, #84A98C 0%, #52796F 100%) !important;
+  box-shadow: 0 4px 15px rgba(132, 169, 140, 0.4) !important;
+  transform-origin: bottom right !important;
+  animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+[data-sender]:not([data-sender="我"]) .chat-message {
+  background: linear-gradient(135deg, #CCE8C6 0%, #CCD5AE 100%) !important;
+  box-shadow: 0 4px 15px rgba(204, 232, 198, 0.4) !important;
+  transform-origin: bottom left !important;
+  animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+@keyframes popIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  40% {
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* 消息气泡光泽效果 */
+[data-sender="我"] .chat-message::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 150%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  transform: skewX(-20deg);
+  animation: shine 4s infinite;
+}
+
+[data-sender]:not([data-sender="我"]) .chat-message::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 150%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transform: skewX(-20deg);
+  animation: shine 6s infinite;
+}
+
+@keyframes shine {
+  0% {
+    left: -150%;
+  }
+  20% {
+    left: 100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* 美化输入区域 */
+.bg-\[\#F5F7F5\].border-t {
+  background: rgba(255, 255, 255, 0.2) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+/* 美化输入框 */
+input[type="text"] {
+  background: rgba(255, 255, 255, 0.8) !important;
+  backdrop-filter: blur(4px) !important;
+  -webkit-backdrop-filter: blur(4px) !important;
+  border: 1px solid rgba(132, 169, 140, 0.3) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+input[type="text"]:focus {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-color: #84A98C !important;
+  box-shadow: 0 0 0 3px rgba(132, 169, 140, 0.2), 0 2px 10px rgba(0, 0, 0, 0.1) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* 美化按钮 */
+button {
+  position: relative !important;
+  overflow: hidden !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+button:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 7px 14px rgba(0, 0, 0, 0.15), 0 3px 6px rgba(0, 0, 0, 0.1) !important;
+}
+
+button:active {
+  transform: translateY(1px) !important;
+}
+
+/* 发送按钮特效 */
+button[disabled] {
+  opacity: 0.5 !important;
+}
+
+/* 美化群聊配置面板 */
+.fixed.inset-y-0.right-0 {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  box-shadow: -5px 0 25px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* 美化群聊配置卡片 */
+.mb-6.p-4.bg-\[\#F5F7F5\].rounded-lg {
+  background: rgba(255, 255, 255, 0.7) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border-radius: 12px !important;
+  border: 1px solid rgba(255, 255, 255, 0.5) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08) !important;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.mb-6.p-4.bg-\[\#F5F7F5\].rounded-lg:hover {
+  transform: translateY(-5px) !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* 美化成员列表项 */
+.flex.items-center.justify-between.p-2 {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.flex.items-center.justify-between.p-2:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* 美化分享海报弹窗 */
+.fixed.inset-0.bg-black\/50 {
+  backdrop-filter: blur(5px) !important;
+  -webkit-backdrop-filter: blur(5px) !important;
+}
+
+.bg-white.rounded-lg.max-w-\[90vw\] {
+  background: rgba(255, 255, 255, 0.7) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border-radius: 12px !important;
+  border: 1px solid rgba(255, 255, 255, 0.5) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* 添加页面过渡动画 */
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 平滑滚动 */
+.overflow-y-auto {
+  scroll-behavior: smooth !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+/* 美化QR码 */
+#qrcode img {
+  position: relative !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+}
+
+#qrcode img::before {
+  content: '' !important;
+  position: absolute !important;
+  top: -2px !important;
+  left: -2px !important;
+  width: calc(100% + 4px) !important;
+  height: calc(100% + 4px) !important;
+  background: linear-gradient(45deg, #CCE8C6, #84A98C, #52796F, #CCD5AE) !important;
+  background-size: 400% 400% !important;
+  z-index: -1 !important;
+  animation: gradient 10s linear infinite !important;
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 } 

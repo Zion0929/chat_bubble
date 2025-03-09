@@ -44,6 +44,26 @@
   --message-gradient-ai: linear-gradient(135deg, rgba(204, 232, 198, 0.8) 0%, rgba(204, 213, 174, 0.8) 100%);
   --header-gradient: linear-gradient(135deg, #CCE8C6 0%, #CCD5AE 100%);
   --background-gradient: linear-gradient(135deg, #CCE8C6 0%, #CCD5AE 50%, #84A98C 100%);
+  
+  /* 增强版UI元素 - 2.0 */
+  --enhanced-glass-bg: rgba(255, 255, 255, 0.35);
+  --enhanced-glass-border: rgba(255, 255, 255, 0.25);
+  --enhanced-glass-shadow: 0 10px 40px 0 rgba(31, 38, 135, 0.1);
+  --enhanced-card-shadow: 0 8px 20px -2px rgba(0, 0, 0, 0.12), 0 4px 8px -2px rgba(0, 0, 0, 0.08);
+  --enhanced-hover-shadow: 0 15px 25px -3px rgba(0, 0, 0, 0.15), 0 6px 10px -2px rgba(0, 0, 0, 0.08);
+  --enhanced-button-gradient: linear-gradient(135deg, #84A98C 0%, #52796F 100%);
+  --enhanced-button-hover-gradient: linear-gradient(135deg, #6B9080 0%, #84A98C 100%);
+  --enhanced-message-gradient-user: linear-gradient(135deg, #84A98C 0%, #52796F 100%);
+  --enhanced-message-gradient-ai: linear-gradient(135deg, rgba(204, 232, 198, 0.9) 0%, rgba(204, 213, 174, 0.9) 100%);
+  --enhanced-header-gradient: linear-gradient(135deg, #CCE8C6 0%, #CCD5AE 100%);
+  --enhanced-background-gradient: linear-gradient(135deg, #CCE8C6 0%, #CCD5AE 50%, #84A98C 100%);
+  --enhanced-avatar-glow: 0 0 15px rgba(132, 169, 140, 0.5);
+  --enhanced-input-focus-glow: 0 0 0 3px rgba(132, 169, 140, 0.25);
+  --enhanced-button-active-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  --enhanced-panel-shadow: -8px 0 30px rgba(0, 0, 0, 0.12);
+  --enhanced-card-hover-transform: translateY(-5px);
+  --enhanced-button-hover-transform: translateY(-2px);
+  --enhanced-button-active-transform: translateY(1px);
 }
 
 .dark {
@@ -82,4 +102,102 @@
   --message-gradient-ai: linear-gradient(135deg, rgba(50, 70, 60, 0.8) 0%, rgba(40, 55, 45, 0.8) 100%);
   --header-gradient: linear-gradient(135deg, #2D3A3A 0%, #52796F 100%);
   --background-gradient: linear-gradient(135deg, #2D3A3A 0%, #52796F 50%, #84A98C 100%);
+  
+  /* 增强版UI元素 - 暗色模式 2.0 */
+  --enhanced-glass-bg: rgba(20, 30, 25, 0.85);
+  --enhanced-glass-border: rgba(255, 255, 255, 0.12);
+  --enhanced-glass-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.35);
+  --enhanced-card-shadow: 0 8px 20px -2px rgba(0, 0, 0, 0.35), 0 4px 8px -2px rgba(0, 0, 0, 0.25);
+  --enhanced-hover-shadow: 0 15px 25px -3px rgba(0, 0, 0, 0.35), 0 6px 10px -2px rgba(0, 0, 0, 0.25);
+  --enhanced-button-gradient: linear-gradient(135deg, #84A98C 0%, #52796F 100%);
+  --enhanced-button-hover-gradient: linear-gradient(135deg, #6B9080 0%, #84A98C 100%);
+  --enhanced-message-gradient-user: linear-gradient(135deg, #52796F 0%, #2D3A3A 100%);
+  --enhanced-message-gradient-ai: linear-gradient(135deg, rgba(50, 70, 60, 0.9) 0%, rgba(40, 55, 45, 0.9) 100%);
+  --enhanced-header-gradient: linear-gradient(135deg, #2D3A3A 0%, #52796F 100%);
+  --enhanced-background-gradient: linear-gradient(135deg, #2D3A3A 0%, #52796F 50%, #84A98C 100%);
+  --enhanced-avatar-glow: 0 0 15px rgba(132, 169, 140, 0.3);
+  --enhanced-input-focus-glow: 0 0 0 3px rgba(132, 169, 140, 0.15);
+  --enhanced-button-active-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+  --enhanced-panel-shadow: -8px 0 30px rgba(0, 0, 0, 0.3);
+  --enhanced-card-hover-transform: translateY(-5px);
+  --enhanced-button-hover-transform: translateY(-2px);
+  --enhanced-button-active-transform: translateY(1px);
+}
+
+/* 全局动画定义 */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { transform: translateX(-20px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes popIn {
+  0% { transform: scale(0.8); opacity: 0; }
+  50% { transform: scale(1.05); opacity: 0.8; }
+  70% { transform: scale(0.95); opacity: 0.9; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes shine {
+  0% { left: -150%; }
+  20% { left: 100%; }
+  100% { left: 100%; }
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(132, 169, 140, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(132, 169, 140, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(132, 169, 140, 0); }
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-5px); }
+  100% { transform: translateY(0px); }
+}
+
+@keyframes gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* 全局样式增强 */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+/* 全局过渡效果 */
+* {
+  transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 0.2s;
+}
+
+/* 微妙的滚动条设计 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(204, 232, 198, 0.1);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(132, 169, 140, 0.5);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #84A98C;
 } 
